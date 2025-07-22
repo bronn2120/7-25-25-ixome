@@ -22,7 +22,7 @@
       <span>Chat with Us</span>
     </router-link>
 
-    <!-- Simple Chatbot Widget on every page -->
+    <!-- Simple Chatbot Widget -->
     <div class="chat-widget">
       <input v-model="query" type="text" placeholder="Quick question?">
       <button @click="sendQuery">Ask</button>
@@ -44,7 +44,7 @@ import BigdataAnalyticsOurRecentStory from '~/components/BigdataAnalytics/OurRec
 import BigdataAnalyticsStartYourFreeTrial from '~/components/BigdataAnalytics/StartYourFreeTrial.vue';
 
 export default {
-  name: 'HomePage',
+  name: 'Index',
   components: {
     BigdataAnalyticsMainBanner,
     BigdataAnalyticsWhatWeDo,
@@ -59,7 +59,6 @@ export default {
   },
   data() {
     return {
-      boxes: [],
       query: '',
       response: ''
     }
@@ -67,14 +66,6 @@ export default {
   computed: {
     showChatButton() {
       return this.$route.path !== '/support';
-    }
-  },
-  async mounted() {
-    try {
-      const response = await this.$axios.get('/homepage_data')
-      this.boxes = response.data.boxes || []
-    } catch (e) {
-      console.error('Error fetching homepage data:', e)
     }
   },
   methods: {
