@@ -2,11 +2,10 @@
   <div class="blog-area ptb-80">
     <div class="container">
       <div class="section-title">
-        <h2>Our Recent Story</h2>
+        <h2>Our Long History</h2>
         <div class="bar"></div>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          O1.
         </p>
       </div>
 
@@ -33,8 +32,7 @@
                 >
               </h3>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod...
+                O2.
               </p>
               <a href="#" class="learn-more-btn"
                 >Read Story <PlusIcon></PlusIcon
@@ -63,8 +61,7 @@
                 <a href="#">I Used The Web For A Day On A 50 MB Budget</a>
               </h3>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod...
+                O3.
               </p>
               <a href="#" class="learn-more-btn"
                 >Read Story <PlusIcon></PlusIcon
@@ -95,8 +92,7 @@
                 >
               </h3>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod...
+                O4.
               </p>
               <a href="#" class="learn-more-btn"
                 >Read Story <PlusIcon></PlusIcon

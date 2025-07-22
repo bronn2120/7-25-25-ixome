@@ -5,8 +5,7 @@
         <h2>What We Do</h2>
         <div class="bar"></div>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          W1.
         </p>
       </div>
 
@@ -18,8 +17,7 @@
             </div>
             <h3><NuxtLink to="/service-details">Research</NuxtLink></h3>
             <p>
-              Lorem ipsum dolor sit consectetur, consectetur adipiscing elit,
-              sed do eiusmod tempor incididunt.
+              W2.
             </p>
             <NuxtLink to="/service-details" class="link"
               >Market Research</NuxtLink
@@ -40,8 +38,7 @@
             </div>
             <h3><NuxtLink to="/service-details">Analytics</NuxtLink></h3>
             <p>
-              Lorem ipsum dolor sit consectetur, consectetur adipiscing elit,
-              sed do eiusmod tempor incididunt.
+              W3.
             </p>
             <NuxtLink to="/service-details" class="link"
               >Data Analytics</NuxtLink
@@ -64,8 +61,7 @@
             </div>
             <h3><NuxtLink to="/service-details">Technology</NuxtLink></h3>
             <p>
-              Lorem ipsum dolor sit consectetur, consectetur adipiscing elit,
-              sed do eiusmod tempor incididunt.
+              W4.
             </p>
             <NuxtLink to="/service-details" class="link"
               >Intelligence Automation</NuxtLink

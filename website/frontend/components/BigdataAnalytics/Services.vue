@@ -5,8 +5,7 @@
         <h2>Services We Can Help You With</h2>
         <div class="bar"></div>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          S1.
         </p>
       </div>
 
@@ -20,8 +19,7 @@
               <NuxtLink to="/service-details">Big Data Analysis</NuxtLink>
             </h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod ut labore et dolore magna aliqua.
+              S2.
             </p>
             <NuxtLink to="/service-details" class="learn-more-btn"
               ><ArrowRightIcon></ArrowRightIcon>Learn More</NuxtLink
@@ -42,8 +40,7 @@
             </div>
             <h3><NuxtLink to="/service-details">Robust Analytics</NuxtLink></h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod ut labore et dolore magna aliqua.
+              S3.
             </p>
             <NuxtLink to="/service-details" class="learn-more-btn"
               ><ArrowRightIcon></ArrowRightIcon>Learn More</NuxtLink
@@ -66,8 +63,7 @@
               <NuxtLink to="/service-details">Marketing Analytics</NuxtLink>
             </h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod ut labore et dolore magna aliqua.
+              S4.
             </p>
             <NuxtLink to="/service-details" class="learn-more-btn"
               ><ArrowRightIcon></ArrowRightIcon>Learn More</NuxtLink
@@ -90,8 +86,7 @@
               <NuxtLink to="/service-details">Data Visualization</NuxtLink>
             </h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod ut labore et dolore magna aliqua.
+              S5.
             </p>
             <NuxtLink to="/service-details" class="learn-more-btn"
               ><ArrowRightIcon></ArrowRightIcon>Learn More</NuxtLink
@@ -114,8 +109,7 @@
               <NuxtLink to="/service-details">Securities Research</NuxtLink>
             </h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod ut labore et dolore magna aliqua.
+              S6.
             </p>
             <NuxtLink to="/service-details" class="learn-more-btn"
               ><ArrowRightIcon></ArrowRightIcon>Learn More</NuxtLink
@@ -136,8 +130,7 @@
             </div>
             <h3><NuxtLink to="/service-details">Data Governance</NuxtLink></h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod ut labore et dolore magna aliqua.
+              S7.
             </p>
             <NuxtLink to="/service-details" class="learn-more-btn"
               ><ArrowRightIcon></ArrowRightIcon>Learn More</NuxtLink

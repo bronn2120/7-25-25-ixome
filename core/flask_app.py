@@ -1,16 +1,20 @@
+# Complete Flask app with homepage data route, marketing/social agents for dynamic boxes, fits existing setup.
 import sys
 import os
 sys.path.append('/home/vincent/ixome')  # Absolute path to include agents directory
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_socketio import SocketIO, emit
 from agents.chat_agent import ChatAgent
+from agents.marketing_agent import MarketingAgent
+from agents.social_agent import SocialAgent
 import logging
 from asgiref.wsgi import WsgiToAsgi
 from dotenv import load_dotenv
 import requests
+import random
 
 # Load environment variables
 load_dotenv()
@@ -20,7 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', '1c5565f83a9180cd3b7c544da8d8faf1623613d1b6c50f06d6702d8f6d641779')
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your_default_jwt_secret_key')
 
-# Set up CORS to allow requests from both localhost and production domain with credentials
+# Set up CORS
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://ixome.ai"]}}, supports_credentials=True)
 
 # Initialize JWT and SocketIO
@@ -31,19 +35,21 @@ socketio = SocketIO(app, cors_allowed_origins=["http://localhost:3000", "https:/
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize ChatAgent instance
-print("Initializing ChatAgent")
+# Initialize agents
+print("Initializing agents")
 try:
     agent = ChatAgent()
-    logger.info("ChatAgent initialized successfully")
-    print("ChatAgent initialized successfully")
+    marketing_agent = MarketingAgent()
+    social_agent = SocialAgent()
+    logger.info("Agents initialized successfully")
+    print("Agents initialized successfully")
 except ImportError as e:
-    logger.error(f"Failed to import ChatAgent: {str(e)}")
-    print(f"Failed to import ChatAgent: {str(e)}")
+    logger.error(f"Failed to import agents: {str(e)}")
+    print(f"Failed to import agents: {str(e)}")
     raise
 except Exception as e:
-    logger.error(f"Failed to initialize ChatAgent: {str(e)}")
-    print(f"Failed to initialize ChatAgent: {str(e)}")
+    logger.error(f"Failed to initialize agents: {str(e)}")
+    print(f"Failed to initialize agents: {str(e)}")
     raise
 
 # Strapi API configuration
@@ -62,8 +68,27 @@ def check_subscription(user_id):
                 return False
         return False
     except Exception as e:
-        logger.error(f"Error checking subscription: {str(e)}")
+        logger.error(f"Error checking subscription: {e}")
         return False
+
+# Homepage data endpoint (for dynamic boxes from agents)
+@app.route('/homepage_data')
+def homepage_data():
+    try:
+        campaign = marketing_agent.generate_campaign()  # Returns {'content': 'Promo text...'}
+        boxes = [
+            {'title': 'Basic Tier', 'description': '100 tokens - $10 ' + campaign.get('content', ''), 'link': '/purchase/basic'},
+            {'title': 'Pro Tier', 'description': '1000 tokens - $50 ' + campaign.get('content', ''), 'link': '/purchase/pro'},
+            {'title': 'Enterprise Tier', 'description': '10000 tokens - $200 ' + campaign.get('content', ''), 'link': '/purchase/enterprise'}
+        ]
+        # Agentic: Trigger social promotion if random (or CEO logic for low subscriptions)
+        if random.random() < 0.2:
+            social_agent.promote()
+        logger.info(f"Generated homepage data: {boxes}")
+        return jsonify(boxes=boxes)
+    except Exception as e:
+        logger.error(f"Error generating homepage data: {e}")
+        return jsonify({"error": "Failed to load homepage data"}), 500
 
 # Socket.IO event handlers
 @socketio.on('connect')
@@ -88,22 +113,21 @@ async def handle_message(data):
     if is_technical:
         if not check_subscription(current_user):
             emit('response', {
-                'text': "This looks like a technical issue! I can solve one easy problem for free. If it’s complex, please subscribe to one of our plans: $10 (1 problem), $20 (3 problems), or $149 (100 problems). Visit /support to subscribe!",
+                'text': "This looks like a technical issue! I can solve one easy problem for free. If it’s complex, please subscribe to one of our plans: $10 (1 problem), $50 (10 problems), or $200 (100 problems). Visit /support to subscribe!",
                 'redirect': '/support'
             })
             return
 
     try:
-        result = await agent.process_input("text", user_message)
+        result = await agent.process_input("text", user_message, current_user)
         emit('response', {'text': result})
         if is_technical and check_subscription(current_user):
             tokens = requests.get(f"{STRAPI_URL}/api/users?filters[username][$eq]={current_user}", headers={'Authorization': 'Bearer your_strapi_jwt'}).json().get('data', [{}])[0].get('attributes', {}).get('subscription', {}).get('tokens', 0) - 1
             requests.put(f"{STRAPI_URL}/api/users/{current_user}", json={'tokens': tokens}, headers={'Authorization': 'Bearer your_strapi_jwt'})
             emit('response', {'text': "Follow-up: Need more help? Ask another question or let me know!"})
     except Exception as e:
-        logger.error(f"Error processing message: {str(e)}")
+        logger.error(f"Error processing message: {e}")
         emit('response', {'text': f"Oops! Something went wrong. Try again later! ({str(e)})"})
-
 
 # Define the /login route
 @app.route('/login', methods=['POST'])
@@ -130,11 +154,11 @@ async def process():
             return jsonify({'error': 'Input data cannot be empty'}), 400
         current_user = get_jwt_identity()
         logger.info(f"Processing request for user: {current_user}")
-        result = await agent.process_input(data['input_type'], data['input_data'])
+        result = await agent.process_input(data['input_type'], data['input_data'], current_user)
         logger.info(f"ChatAgent result: {result}")
         return jsonify({'result': result})
     except Exception as e:
-        logger.error(f"Error processing request: {str(e)}")
+        logger.error(f"Error processing request: {e}")
         return jsonify({'error': f"Server error: {str(e)}"}), 500
 
 @app.route('/')
