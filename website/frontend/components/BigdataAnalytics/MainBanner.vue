@@ -2,10 +2,8 @@
   <div class="bigdata-analytics-banner">
     <div class="container">
       <div class="bigdata-analytics-content">
-        <h1>Leading Smart Home Support</h1>
-        <p>
-          M1.
-        </p>
+        <h1>Leading Smart Home Solutions Company</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida.</p>
         <a href="#" class="btn btn-primary">Get Started</a>
       </div>
     </div>
@@ -18,10 +16,8 @@
               <div class="icon">
                 <ServerIcon></ServerIcon>
               </div>
-              <h3>Technical Solutions</h3>
-              <p>
-                M2.
-              </p>
+              <h3>Analyze Your Data</h3>
+              <p>Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod tempor incididunt ut labore dolore magna aliqua.</p>
             </div>
           </div>
 
@@ -31,23 +27,17 @@
                 <CodeIcon></CodeIcon>
               </div>
               <h3>Customized Plan</h3>
-              <p>
-                M3.
-              </p>
+              <p>Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod tempor incididunt ut labore dolore magna aliqua.</p>
             </div>
           </div>
 
-          <div
-            class="col-lg-4 col-md-6 col-sm-6 offset-lg-0 offset-md-3 offset-sm-3"
-          >
+          <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-0 offset-md-3 offset-sm-3">
             <div class="single-banner-boxes">
               <div class="icon">
                 <UsersIcon></UsersIcon>
               </div>
               <h3>Implement Solution</h3>
-              <p>
-                M4.
-              </p>
+              <p>Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod tempor incididunt ut labore dolore magna aliqua.</p>
             </div>
           </div>
         </div>
