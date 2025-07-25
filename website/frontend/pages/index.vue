@@ -3,7 +3,6 @@
     <BigdataAnalyticsMainBanner />
     <BigdataAnalyticsWhatWeDo />
     <BigdataAnalyticsDiscover />
-    <BigdataAnalyticsServices />
     <BigdataAnalyticsTeam />
     <BigdataAnalyticsFunFacts />
     <BigdataAnalyticsFeedback />
@@ -22,7 +21,7 @@
       <span>Chat with Us</span>
     </router-link>
 
-    <!-- Simple Chatbot Widget -->
+    <!-- Simple Chatbot Widget on every page -->
     <div class="chat-widget">
       <input v-model="query" type="text" placeholder="Quick question?">
       <button @click="sendQuery">Ask</button>
@@ -35,7 +34,6 @@
 import BigdataAnalyticsMainBanner from '~/components/BigdataAnalytics/MainBanner.vue';
 import BigdataAnalyticsWhatWeDo from '~/components/BigdataAnalytics/WhatWeDo.vue';
 import BigdataAnalyticsDiscover from '~/components/BigdataAnalytics/Discover.vue';
-import BigdataAnalyticsServices from '~/components/BigdataAnalytics/Services.vue';
 import BigdataAnalyticsTeam from '~/components/BigdataAnalytics/Team.vue';
 import BigdataAnalyticsFunFacts from '~/components/BigdataAnalytics/FunFacts.vue';
 import BigdataAnalyticsFeedback from '~/components/BigdataAnalytics/Feedback.vue';
@@ -49,7 +47,6 @@ export default {
     BigdataAnalyticsMainBanner,
     BigdataAnalyticsWhatWeDo,
     BigdataAnalyticsDiscover,
-    BigdataAnalyticsServices,
     BigdataAnalyticsTeam,
     BigdataAnalyticsFunFacts,
     BigdataAnalyticsFeedback,
