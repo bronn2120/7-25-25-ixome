@@ -5,7 +5,8 @@
         <h2>Our Awesome Team</h2>
         <div class="bar"></div>
         <p>
-          T1.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
       </div>
 
@@ -44,7 +45,8 @@
                 </li>
               </ul>
               <p>
-                T2.
+                Risus commodo viverra maecenas accumsan lacus vel facilisis quis
+                ipsum.
               </p>
             </div>
           </div>
@@ -84,7 +86,8 @@
                 </li>
               </ul>
               <p>
-                T3.
+                Risus commodo viverra maecenas accumsan lacus vel facilisis quis
+                ipsum.
               </p>
             </div>
           </div>
@@ -124,7 +127,8 @@
                 </li>
               </ul>
               <p>
-                T4.
+                Risus commodo viverra maecenas accumsan lacus vel facilisis quis
+                ipsum.
               </p>
             </div>
           </div>
@@ -164,7 +168,8 @@
                 </li>
               </ul>
               <p>
-                T5.
+                Risus commodo viverra maecenas accumsan lacus vel facilisis quis
+                ipsum.
               </p>
             </div>
           </div>

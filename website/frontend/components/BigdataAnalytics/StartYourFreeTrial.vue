@@ -15,7 +15,7 @@
                             <input type="email" class="input-newsletter" placeholder="Enter your business email here">
                             <button type="submit">Sign Up Free</button>
                         </form>
-                        <p>Test out the AI Chatbot, no credit card required.</p>
+                        <p>Test out the Big Data Analytics features for 14 days, no credit card required.</p>
                     </div>
                 </div>
             </div>

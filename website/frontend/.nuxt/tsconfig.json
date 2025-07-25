@@ -28,20 +28,11 @@
       "@nuxt/devtools": [
         "../node_modules/@nuxt/devtools"
       ],
-      "vue": [
-        "../node_modules/vue"
-      ],
       "@vue/runtime-core": [
         "../node_modules/@vue/runtime-core"
       ],
       "@vue/compiler-sfc": [
         "../node_modules/@vue/compiler-sfc"
-      ],
-      "vue-router": [
-        "../node_modules/vue-router"
-      ],
-      "vue-router/auto-routes": [
-        "../node_modules/vue-router/vue-router-auto-routes"
       ],
       "unplugin-vue-router/client": [
         "../node_modules/unplugin-vue-router/client"
@@ -103,6 +94,9 @@
       "vue-demi": [
         "../node_modules/nuxt/dist/app/compat/vue-demi"
       ],
+      "pinia": [
+        "../node_modules/pinia/dist/pinia"
+      ],
       "#vue-router": [
         "../node_modules/vue-router"
       ],
@@ -157,6 +151,16 @@
     "../**/*",
     "../.config/nuxt.*",
     "./nuxt.d.ts",
+    "../node_modules/@bootstrap-vue-next/nuxt/runtime",
+    "../node_modules/@bootstrap-vue-next/nuxt/dist/runtime",
+    "../node_modules/nuxt-feather-icons/runtime",
+    "../node_modules/nuxt-feather-icons/dist/runtime",
+    "../node_modules/vue3-carousel-nuxt/runtime",
+    "../node_modules/vue3-carousel-nuxt/dist/runtime",
+    "../node_modules/@pinia/nuxt/runtime",
+    "../node_modules/@pinia/nuxt/dist/runtime",
+    "../node_modules/@nuxtjs/strapi/runtime",
+    "../node_modules/@nuxtjs/strapi/dist/runtime",
     "../node_modules/@nuxt/devtools/runtime",
     "../node_modules/@nuxt/devtools/dist/runtime",
     "../node_modules/@nuxt/telemetry/runtime",
@@ -169,12 +173,27 @@
     "../node_modules",
     "../../../node_modules",
     "../node_modules/nuxt/node_modules",
+    "../node_modules/@bootstrap-vue-next/nuxt/node_modules",
+    "../node_modules/nuxt-feather-icons/node_modules",
+    "../node_modules/vue3-carousel-nuxt/node_modules",
+    "../node_modules/@pinia/nuxt/node_modules",
+    "../node_modules/@nuxtjs/strapi/node_modules",
     "../node_modules/@nuxt/devtools/node_modules",
     "../node_modules/@nuxt/telemetry/node_modules",
+    "../node_modules/@bootstrap-vue-next/nuxt/runtime/server",
+    "../node_modules/@bootstrap-vue-next/nuxt/dist/runtime/server",
+    "../node_modules/nuxt-feather-icons/runtime/server",
+    "../node_modules/nuxt-feather-icons/dist/runtime/server",
+    "../node_modules/vue3-carousel-nuxt/runtime/server",
+    "../node_modules/vue3-carousel-nuxt/dist/runtime/server",
+    "../node_modules/@pinia/nuxt/runtime/server",
+    "../node_modules/@pinia/nuxt/dist/runtime/server",
+    "../node_modules/@nuxtjs/strapi/runtime/server",
+    "../node_modules/@nuxtjs/strapi/dist/runtime/server",
     "../node_modules/@nuxt/devtools/runtime/server",
     "../node_modules/@nuxt/devtools/dist/runtime/server",
     "../node_modules/@nuxt/telemetry/runtime/server",
     "../node_modules/@nuxt/telemetry/dist/runtime/server",
-    "dev"
+    "../.output"
   ]
 }
