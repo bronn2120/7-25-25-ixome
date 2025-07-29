@@ -2,12 +2,8 @@
   <div class="bigdata-analytics-banner">
     <div class="container">
       <div class="bigdata-analytics-content">
-        <h1>Leading Smart Home Solutions Company</h1>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum
-          suspendisse ultrices gravida.
-        </p>
+        <h1>Revolutionize Your Smart Home with AI Support</h1>
+        <p>IXome.ai offers subscription-based chatbot for Control4 and Lutron troubleshooting, with autonomous updates for seamless experience.</p>
         <a href="#" class="btn btn-primary">Get Started</a>
       </div>
     </div>

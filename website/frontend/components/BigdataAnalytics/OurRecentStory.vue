@@ -1,130 +1,180 @@
 <template>
-  <div class="blog-area ptb-80">
+  <div class="bigdata-story-area ptb-80">
     <div class="container">
       <div class="section-title">
-        <h2>Our Recent Story</h2>
+        <h2>Our Recent Stories</h2>
         <div class="bar"></div>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        </p>
+        <p>Latest news and insights from IXome.ai on smart home technology.</p>
       </div>
 
       <div class="row">
         <div class="col-lg-4 col-md-6">
-          <div class="single-blog-post-box bg-f4faff">
-            <div class="entry-thumbnail">
-              <a href="#"
-                ><img src="~/assets/img/blog-image/1.jpg" alt="image"
-              /></a>
+          <div class="single-story-box">
+            <div class="story-image">
+              <NuxtLink to="/blog-details">
+                <img src="~/assets/img/blog-image/1.jpg" alt="image">
+              </NuxtLink>
             </div>
 
-            <div class="entry-post-content">
-              <div class="entry-meta">
-                <ul>
-                  <li><a href="#">Admin</a></li>
-                  <li>August 15, 2019</li>
-                </ul>
-              </div>
-
-              <h3>
-                <a href="#"
-                  >Making Peace With The Feast Or Famine Of Freelancing</a
-                >
-              </h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod...
-              </p>
-              <a href="#" class="learn-more-btn"
-                >Read Story <PlusIcon></PlusIcon
-              ></a>
+            <div class="story-content">
+              <h3><NuxtLink to="/blog-details">Top 5 Control4 Troubleshooting Tips</NuxtLink></h3>
+              <p>Learn expert tips to quickly resolve common Control4 issues with IXome.ai's chatbot.</p>
+              <NuxtLink to="/blog-details" class="read-more-btn">Read More <ArrowRightIcon></ArrowRightIcon></NuxtLink>
             </div>
           </div>
         </div>
 
         <div class="col-lg-4 col-md-6">
-          <div class="single-blog-post-box bg-f4faff">
-            <div class="entry-thumbnail">
-              <a href="#"
-                ><img src="~/assets/img/blog-image/2.jpg" alt="image"
-              /></a>
+          <div class="single-story-box">
+            <div class="story-image">
+              <NuxtLink to="/blog-details">
+                <img src="~/assets/img/blog-image/2.jpg" alt="image">
+              </NuxtLink>
             </div>
 
-            <div class="entry-post-content">
-              <div class="entry-meta">
-                <ul>
-                  <li><a href="#">Admin</a></li>
-                  <li>August 18, 2019</li>
-                </ul>
-              </div>
-
-              <h3>
-                <a href="#">I Used The Web For A Day On A 50 MB Budget</a>
-              </h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod...
-              </p>
-              <a href="#" class="learn-more-btn"
-                >Read Story <PlusIcon></PlusIcon
-              ></a>
+            <div class="story-content">
+              <h3><NuxtLink to="/blog-details">Mastering Lutron Systems with AI</NuxtLink></h3>
+              <p>Discover how IXome.ai simplifies Lutron troubleshooting for seamless smart home control.</p>
+              <NuxtLink to="/blog-details" class="read-more-btn">Read More <ArrowRightIcon></ArrowRightIcon></NuxtLink>
             </div>
           </div>
         </div>
 
-        <div class="col-lg-4 col-md-6 offset-md-3 offset-lg-0">
-          <div class="single-blog-post-box bg-f4faff">
-            <div class="entry-thumbnail">
-              <a href="#"
-                ><img src="~/assets/img/blog-image/3.jpg" alt="image"
-              /></a>
+        <div class="col-lg-4 col-md-6 offset-lg-0 offset-md-3">
+          <div class="single-story-box">
+            <div class="story-image">
+              <NuxtLink to="/blog-details">
+                <img src="~/assets/img/blog-image/3.jpg" alt="image">
+              </NuxtLink>
             </div>
 
-            <div class="entry-post-content">
-              <div class="entry-meta">
-                <ul>
-                  <li><a href="#">Admin</a></li>
-                  <li>August 15, 2019</li>
-                </ul>
-              </div>
-
-              <h3>
-                <a href="#"
-                  >Here are the 5 most telling signs of micromanagement</a
-                >
-              </h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod...
-              </p>
-              <a href="#" class="learn-more-btn"
-                >Read Story <PlusIcon></PlusIcon
-              ></a>
+            <div class="story-content">
+              <h3><NuxtLink to="/blog-details">The Future of AI in Smart Homes</NuxtLink></h3>
+              <p>Explore how IXome.ai's autonomous agents are revolutionizing home automation.</p>
+              <NuxtLink to="/blog-details" class="read-more-btn">Read More <ArrowRightIcon></ArrowRightIcon></NuxtLink>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="shape1"><img src="~/assets/img/shape1.png" alt="shape" /></div>
-    <div class="shape2 rotateme">
-      <img src="~/assets/img/shape2.svg" alt="shape" />
-    </div>
-    <div class="shape3"><img src="~/assets/img/shape3.svg" alt="shape" /></div>
-    <div class="shape4"><img src="~/assets/img/shape4.svg" alt="shape" /></div>
-    <div class="shape6 rotateme">
-      <img src="~/assets/img/shape4.svg" alt="shape" />
-    </div>
-    <div class="shape7"><img src="~/assets/img/shape4.svg" alt="shape" /></div>
-    <div class="shape8 rotateme">
-      <img src="~/assets/img/shape2.svg" alt="shape" />
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "OurRecentStory",
-};
+  name: 'OurRecentStory'
+}
 </script>
+
+<style scoped>
+.bigdata-story-area {
+  position: relative;
+  z-index: 1;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.section-title .bar {
+  height: 5px;
+  width: 50px;
+  background-color: #684df4;
+  margin: 15px auto 20px;
+  position: relative;
+  border-radius: 30px;
+}
+
+.section-title .bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -2.5px;
+  height: 10px;
+  width: 10px;
+  border-radius: 50px;
+  background-color: #ffffff;
+  border: 2px solid #684df4;
+}
+
+.section-title p {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.single-story-box {
+  margin-bottom: 30px;
+  border-radius: 5px;
+  box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
+  -webkit-transition: 0.6s;
+  transition: 0.6s;
+}
+
+.single-story-box .story-image {
+  position: relative;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+}
+
+.single-story-box .story-image img {
+  border-radius: 5px 5px 0 0;
+  -webkit-transition: 0.6s;
+  transition: 0.6s;
+}
+
+.single-story-box .story-content {
+  padding: 20px;
+}
+
+.single-story-box .story-content h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.single-story-box .story-content p {
+  margin-bottom: 0;
+}
+
+.single-story-box .story-content .read-more-btn {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #684df4;
+  margin-top: 20px;
+  position: relative;
+}
+
+.single-story-box .story-content .read-more-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 1px;
+  background-color: #684df4;
+  -webkit-transition: 0.6s;
+  transition: 0.6s;
+}
+
+.single-story-box .story-content .read-more-btn:hover {
+  color: #684df4;
+  letter-spacing: 1px;
+}
+
+.single-story-box .story-content .read-more-btn:hover::before {
+  width: 100%;
+}
+
+.single-story-box:hover .story-image img {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+</style>
