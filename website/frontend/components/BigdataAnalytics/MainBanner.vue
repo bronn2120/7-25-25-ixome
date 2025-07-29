@@ -3,7 +3,11 @@
     <div class="container">
       <div class="bigdata-analytics-content">
         <h1>Leading Smart Home Solutions Company</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida.</p>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum
+          suspendisse ultrices gravida.
+        </p>
         <a href="#" class="btn btn-primary">Get Started</a>
       </div>
     </div>
@@ -16,8 +20,10 @@
               <div class="icon">
                 <ServerIcon></ServerIcon>
               </div>
-              <h3>Analyze Your Data</h3>
-              <p>Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod tempor incididunt ut labore dolore magna aliqua.</p>
+              <h3>Basic Subscription</h3>
+              <p>
+                $10 for 100 tokens. Ideal for occasional troubleshooting of Control4 and Lutron systems.
+              </p>
             </div>
           </div>
 
@@ -26,8 +32,10 @@
               <div class="icon">
                 <CodeIcon></CodeIcon>
               </div>
-              <h3>Customized Plan</h3>
-              <p>Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod tempor incididunt ut labore dolore magna aliqua.</p>
+              <h3>Pro Subscription</h3>
+              <p>
+                $50 for 1000 tokens. Perfect for frequent users needing advanced smart home support.
+              </p>
             </div>
           </div>
 
@@ -36,8 +44,10 @@
               <div class="icon">
                 <UsersIcon></UsersIcon>
               </div>
-              <h3>Implement Solution</h3>
-              <p>Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod tempor incididunt ut labore dolore magna aliqua.</p>
+              <h3>Enterprise Subscription</h3>
+              <p>
+                $200 for 10000 tokens. Enterprise-level access for installers and large-scale projects.
+              </p>
             </div>
           </div>
         </div>

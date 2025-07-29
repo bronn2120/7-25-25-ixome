@@ -24,9 +24,7 @@ type NuxtAppInjections =
   InjectionType<typeof import("../../node_modules/@bootstrap-vue-next/nuxt/dist/runtime/useDirectives.js")> &
   InjectionType<typeof import("../../node_modules/@bootstrap-vue-next/nuxt/dist/runtime/createBootstrap.js")> &
   InjectionType<typeof import("../../node_modules/nuxt/dist/app/plugins/dev-server-logs.js")> &
-  InjectionType<typeof import("../../node_modules/nuxt/dist/app/plugins/check-if-layout-used.js")> &
-  InjectionType<typeof import("../../plugins/cometchat.js")> &
-  InjectionType<typeof import("../../plugins/cometchat-auth.js")>
+  InjectionType<typeof import("../../node_modules/nuxt/dist/app/plugins/check-if-layout-used.js")>
 
 declare module '#app' {
   interface NuxtApp extends NuxtAppInjections { }

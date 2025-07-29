@@ -2,12 +2,8 @@
   <div class="bigdata-analytics-banner">
     <div class="container">
       <div class="bigdata-analytics-content">
-        <h1>Leading Big Data Analytics Company</h1>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum
-          suspendisse ultrices gravida.
-        </p>
+        <h1>Revolutionize Your Smart Home with AI Support</h1>
+        <p>IXome.ai offers subscription-based chatbot for Control4 and Lutron troubleshooting, with autonomous updates for seamless experience.</p>
         <a href="#" class="btn btn-primary">Get Started</a>
       </div>
     </div>
@@ -20,10 +16,9 @@
               <div class="icon">
                 <ServerIcon></ServerIcon>
               </div>
-              <h3>Analyze Your Data</h3>
+              <h3>Basic Subscription</h3>
               <p>
-                Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod
-                tempor incididunt ut labore dolore magna aliqua.
+                $10 for 100 tokens. Ideal for occasional troubleshooting of Control4 and Lutron systems.
               </p>
             </div>
           </div>
@@ -33,25 +28,21 @@
               <div class="icon">
                 <CodeIcon></CodeIcon>
               </div>
-              <h3>Customized Plan</h3>
+              <h3>Pro Subscription</h3>
               <p>
-                Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod
-                tempor incididunt ut labore dolore magna aliqua.
+                $50 for 1000 tokens. Perfect for frequent users needing advanced smart home support.
               </p>
             </div>
           </div>
 
-          <div
-            class="col-lg-4 col-md-6 col-sm-6 offset-lg-0 offset-md-3 offset-sm-3"
-          >
+          <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-0 offset-md-3 offset-sm-3">
             <div class="single-banner-boxes">
               <div class="icon">
                 <UsersIcon></UsersIcon>
               </div>
-              <h3>Implement Solution</h3>
+              <h3>Enterprise Subscription</h3>
               <p>
-                Lorem ipsum dolor sit amet elit, adipiscing, sed do eiusmod
-                tempor incididunt ut labore dolore magna aliqua.
+                $200 for 10000 tokens. Enterprise-level access for installers and large-scale projects.
               </p>
             </div>
           </div>

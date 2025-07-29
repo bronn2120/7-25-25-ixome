@@ -2,9 +2,9 @@
   <div class="pricing-area ptb-80 bg-f7fafd">
     <div class="container">
       <div class="section-title">
-        <h2>Our Pricing Plan</h2>
+        <h2>Our Subscription Plans</h2>
         <div class="bar"></div>
-        <p>Choose the subscription that fits your smart home needs.</p>
+        <p>Choose the plan that fits your smart home needs.</p>
       </div>
 
       <div class="row">
@@ -65,7 +65,16 @@
 
 <script>
 export default {
-  name: 'Pricing'
+  name: 'Pricing',
+  head() {
+    return {
+      title: 'IXome.ai - Subscription Plans',
+      meta: [
+        { name: 'description', content: 'Choose your IXome.ai subscription plan for smart home support.' },
+        { name: 'keywords', content: 'smart home subscription, Control4, Lutron, AI chatbot pricing' }
+      ]
+    }
+  }
 }
 </script>
 
