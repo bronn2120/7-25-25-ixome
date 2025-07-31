@@ -48,9 +48,12 @@ except Exception as e:
     logger.error(f"Failed to initialize agents: {str(e)}")
     raise
 
+# Mock user database (temporary for testing without Strapi)
+users = {'test': {'username': 'test', 'email': 'test@example.com', 'password': 'test', 'tokens': 100}}
+
 # Strapi API configuration
 STRAPI_URL = os.environ.get('STRAPI_URL', 'http://localhost:1337')
-STRAPI_JWT = os.environ.get('STRAPI_JWT', 'your_strapi_jwt')  # Replace with actual Strapi JWT
+STRAPI_JWT = os.environ.get('STRAPI_JWT', 'your_strapi_jwt')
 
 def check_subscription(user_id):
     try:
@@ -64,22 +67,21 @@ def check_subscription(user_id):
                 if tokens > 0 or (not user.get('attributes', {}).get('first_visit_done', False)):
                     return True
                 return False
-        return False
+        return user_id in users and users[user_id]['tokens'] > 0
     except Exception as e:
         logger.error(f"Error checking subscription: {e}")
-        return False
+        return user_id in users and users[user_id]['tokens'] > 0
 
-# Homepage data endpoint (for dynamic boxes from agents)
+# Homepage data endpoint
 @app.route('/homepage_data')
 def homepage_data():
     try:
-        campaign = marketing_agent.generate_campaign()  # Returns {'content': 'Promo text...'}
+        campaign = marketing_agent.generate_campaign()
         boxes = [
             {'title': 'Basic Tier', 'description': '100 tokens - $10 ' + campaign.get('content', ''), 'link': '/purchase/basic'},
             {'title': 'Pro Tier', 'description': '1000 tokens - $50 ' + campaign.get('content', ''), 'link': '/purchase/pro'},
             {'title': 'Enterprise Tier', 'description': '10000 tokens - $200 ' + campaign.get('content', ''), 'link': '/purchase/enterprise'}
         ]
-        # Agentic: Trigger social promotion if random (or CEO logic for low subscriptions)
         if random.random() < 0.2:
             social_agent.promote()
         logger.info(f"Generated homepage data: {boxes}")
@@ -120,14 +122,18 @@ async def handle_message(data):
         result = await agent.process_input("text", user_message, current_user)
         emit('response', {'text': result})
         if is_technical and check_subscription(current_user):
-            headers = {'Authorization': f'Bearer {STRAPI_JWT}'}
-            user_data = requests.get(f"{STRAPI_URL}/api/users?filters[username][$eq]={current_user}", headers=headers).json()
-            user = user_data.get('data', [{}])[0]
-            if user:
-                user_id = user.get('id')
-                tokens = user.get('attributes', {}).get('subscription', {}).get('tokens', 0) - 1
-                requests.put(f"{STRAPI_URL}/api/users/{user_id}", json={'subscription': {'tokens': tokens}}, headers=headers)
-                emit('response', {'text': "Follow-up: Need more help? Ask another question or let me know!"})
+            if current_user in users:
+                users[current_user]['tokens'] -= 1
+                emit('response', {'text': f"Follow-up: Need more help? Ask another question or let me know! Tokens left: {users[current_user]['tokens']}"})
+            else:
+                headers = {'Authorization': f'Bearer {STRAPI_JWT}'}
+                user_data = requests.get(f"{STRAPI_URL}/api/users?filters[username][$eq]={current_user}", headers=headers).json()
+                user = user_data.get('data', [{}])[0]
+                if user:
+                    user_id = user.get('id')
+                    tokens = user.get('attributes', {}).get('subscription', {}).get('tokens', 0) - 1
+                    requests.put(f"{STRAPI_URL}/api/users/{user_id}", json={'subscription': {'tokens': tokens}}, headers=headers)
+                    emit('response', {'text': "Follow-up: Need more help? Ask another question or let me know!"})
     except Exception as e:
         logger.error(f"Error processing message: {e}")
         emit('response', {'text': f"Oops! Something went wrong. Try again later! ({str(e)})"})
@@ -138,8 +144,7 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    # TODO: Replace with proper authentication (e.g., Strapi or database)
-    if username == 'test' and password == 'test':
+    if username in users and users[username]['password'] == password:
         access_token = create_access_token(identity=username)
         return jsonify(access_token=access_token), 200
     return jsonify({"msg": "Bad credentials"}), 401
@@ -151,25 +156,28 @@ def signup():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    # TODO: Replace with proper Strapi registration
     if username and email and password:
-        try:
-            headers = {'Authorization': f'Bearer {STRAPI_JWT}'}
-            response = requests.post(f"{STRAPI_URL}/api/auth/local/register", json={
-                'username': username,
-                'email': email,
-                'password': password
-            }, headers=headers)
-            if response.status_code == 200:
-                access_token = create_access_token(identity=username)
-                return jsonify(access_token=access_token), 200
-            return jsonify({"msg": "Registration failed"}), 400
-        except Exception as e:
-            logger.error(f"Error registering user: {e}")
-            return jsonify({"msg": f"Registration error: {str(e)}"}), 500
+        if username not in users:
+            users[username] = {'username': username, 'email': email, 'password': password, 'tokens': 100}
+            access_token = create_access_token(identity=username)
+            return jsonify(access_token=access_token), 200
+        return jsonify({"msg": "Username already exists"}), 400
     return jsonify({"msg": "Missing required fields"}), 400
 
-# Define the /process route for API access
+# Define the /contact route
+@app.route('/contact', methods=['POST'])
+def contact():
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    message = data.get('message')
+    if name and email and message:
+        logger.info(f"Received contact form: {name}, {email}, {message}")
+        # TODO: Save to database or send email
+        return jsonify({'success': True, 'msg': 'Message received'}), 200
+    return jsonify({'msg': 'Missing required fields'}), 400
+
+# Define the /process route
 @app.route('/process', methods=['POST'])
 @jwt_required()
 async def process():
