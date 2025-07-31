@@ -24,6 +24,11 @@ export default defineNuxtConfig({
     "/assets/css/digital-agency.scss",
     "/assets/css/agency-portfolio.scss",
     "/assets/css/bigdata-analytics.scss",
+    "/assets/css/shop.scss",
+    "/assets/css/products-details.scss",
+    "/assets/css/cart.scss",
+    "/assets/css/checkout.scss",
+    "/assets/css/repair-center.scss",
     "/assets/css/features.scss",
     "/assets/css/service-details.scss",
     "/assets/css/feature-details.scss",
@@ -31,17 +36,18 @@ export default defineNuxtConfig({
     "/assets/css/projects.scss",
     "/assets/css/project-details.scss",
     "/assets/css/team.scss",
+    "/assets/css/coming-soon.scss",
     "/assets/css/blog.scss",
     "/assets/css/blog-details.scss",
     "/assets/css/contact.scss",
-    "/assets/css/responsive.scss"
+    "/assets/css/responsive.scss",
   ],
   modules: [
     '@bootstrap-vue-next/nuxt',
     'nuxt-feather-icons',
     'vue3-carousel-nuxt',
     '@pinia/nuxt',
-    '@nuxtjs/strapi'
+    '@nuxtjs/strapi',
   ],
   carousel: {
     prefix: 'MyPrefix'
@@ -55,5 +61,5 @@ export default defineNuxtConfig({
     cookieName: 'strapi_jwt'
   },
   plugins: [],
-  compatibilityDate: '2025-07-29'
+  compatibilityDate: '2025-07-25'
 })

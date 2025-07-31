@@ -1,8 +1,6 @@
-# /home/vincent/ixome/core/flask_app.py
-# Complete Flask app with homepage data route, marketing/social agents for dynamic boxes, fits existing setup.
 import sys
 import os
-sys.path.append('/home/vincent/ixome')  # Absolute path to include agents directory
+sys.path.append('/home/vincent/ixome')  # Ensure agents directory is in path
 
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_cors import CORS
@@ -43,22 +41,21 @@ try:
     marketing_agent = MarketingAgent()
     social_agent = SocialAgent()
     logger.info("Agents initialized successfully")
-    print("Agents initialized successfully")
 except ImportError as e:
     logger.error(f"Failed to import agents: {str(e)}")
-    print(f"Failed to import agents: {str(e)}")
     raise
 except Exception as e:
     logger.error(f"Failed to initialize agents: {str(e)}")
-    print(f"Failed to initialize agents: {str(e)}")
     raise
 
 # Strapi API configuration
 STRAPI_URL = os.environ.get('STRAPI_URL', 'http://localhost:1337')
+STRAPI_JWT = os.environ.get('STRAPI_JWT', 'your_strapi_jwt')  # Replace with actual Strapi JWT
 
 def check_subscription(user_id):
     try:
-        response = requests.get(f"{STRAPI_URL}/api/users?filters[username][$eq]={user_id}", headers={'Authorization': 'Bearer your_strapi_jwt'})
+        headers = {'Authorization': f'Bearer {STRAPI_JWT}'}
+        response = requests.get(f"{STRAPI_URL}/api/users?filters[username][$eq]={user_id}", headers=headers)
         if response.status_code == 200:
             user = response.json().get('data', [{}])[0]
             if user:
@@ -123,9 +120,14 @@ async def handle_message(data):
         result = await agent.process_input("text", user_message, current_user)
         emit('response', {'text': result})
         if is_technical and check_subscription(current_user):
-            tokens = requests.get(f"{STRAPI_URL}/api/users?filters[username][$eq]={current_user}", headers={'Authorization': 'Bearer your_strapi_jwt'}).json().get('data', [{}])[0].get('attributes', {}).get('subscription', {}).get('tokens', 0) - 1
-            requests.put(f"{STRAPI_URL}/api/users/{current_user}", json={'tokens': tokens}, headers={'Authorization': 'Bearer your_strapi_jwt'})
-            emit('response', {'text': "Follow-up: Need more help? Ask another question or let me know!"})
+            headers = {'Authorization': f'Bearer {STRAPI_JWT}'}
+            user_data = requests.get(f"{STRAPI_URL}/api/users?filters[username][$eq]={current_user}", headers=headers).json()
+            user = user_data.get('data', [{}])[0]
+            if user:
+                user_id = user.get('id')
+                tokens = user.get('attributes', {}).get('subscription', {}).get('tokens', 0) - 1
+                requests.put(f"{STRAPI_URL}/api/users/{user_id}", json={'subscription': {'tokens': tokens}}, headers=headers)
+                emit('response', {'text': "Follow-up: Need more help? Ask another question or let me know!"})
     except Exception as e:
         logger.error(f"Error processing message: {e}")
         emit('response', {'text': f"Oops! Something went wrong. Try again later! ({str(e)})"})
@@ -141,6 +143,31 @@ def login():
         access_token = create_access_token(identity=username)
         return jsonify(access_token=access_token), 200
     return jsonify({"msg": "Bad credentials"}), 401
+
+# Define the /signup route
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    # TODO: Replace with proper Strapi registration
+    if username and email and password:
+        try:
+            headers = {'Authorization': f'Bearer {STRAPI_JWT}'}
+            response = requests.post(f"{STRAPI_URL}/api/auth/local/register", json={
+                'username': username,
+                'email': email,
+                'password': password
+            }, headers=headers)
+            if response.status_code == 200:
+                access_token = create_access_token(identity=username)
+                return jsonify(access_token=access_token), 200
+            return jsonify({"msg": "Registration failed"}), 400
+        except Exception as e:
+            logger.error(f"Error registering user: {e}")
+            return jsonify({"msg": f"Registration error: {str(e)}"}), 500
+    return jsonify({"msg": "Missing required fields"}), 400
 
 # Define the /process route for API access
 @app.route('/process', methods=['POST'])
