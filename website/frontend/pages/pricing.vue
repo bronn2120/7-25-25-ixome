@@ -1,61 +1,46 @@
 <template>
-  <div class="pricing-area ptb-80 bg-f7fafd">
+  <div class="pricing-area ptb-80">
     <div class="container">
       <div class="section-title">
-        <h2>Our Subscription Plans</h2>
+        <h2>Pricing Plans</h2>
         <div class="bar"></div>
-        <p>Choose the plan that fits your smart home needs.</p>
+        <p>Choose the perfect IXome.ai subscription for your smart home needs.</p>
       </div>
 
       <div class="row">
         <div class="col-lg-4 col-md-6">
-          <div class="pricing-box">
-            <div class="price">
-              $10 <span>/Month</span>
+          <div class="single-pricing-box">
+            <h3>Basic Plan</h3>
+            <div class="pricing-price">
+              <span class="price">$10</span>
+              <span class="validity">/ 100 tokens</span>
             </div>
-            <div class="pricing-features">
-              <ul>
-                <li>100 Tokens</li>
-                <li>Basic Troubleshooting</li>
-                <li>Control4 & Lutron Support</li>
-                <li>Email Support</li>
-              </ul>
-            </div>
-            <NuxtLink to="/purchase/basic" class="btn btn-primary">Select Plan</NuxtLink>
+            <p>Ideal for occasional troubleshooting of Control4 and Lutron systems.</p>
+            <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink>
           </div>
         </div>
 
         <div class="col-lg-4 col-md-6">
-          <div class="pricing-box">
-            <div class="price">
-              $50 <span>/Month</span>
+          <div class="single-pricing-box">
+            <h3>Pro Plan</h3>
+            <div class="pricing-price">
+              <span class="price">$50</span>
+              <span class="validity">/ 1000 tokens</span>
             </div>
-            <div class="pricing-features">
-              <ul>
-                <li>1000 Tokens</li>
-                <li>Advanced Troubleshooting</li>
-                <li>Priority Support</li>
-                <li>Chatbot Access</li>
-              </ul>
-            </div>
-            <NuxtLink to="/purchase/pro" class="btn btn-primary">Select Plan</NuxtLink>
+            <p>Perfect for frequent users needing advanced smart home support.</p>
+            <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink>
           </div>
         </div>
 
         <div class="col-lg-4 col-md-6 offset-lg-0 offset-md-3">
-          <div class="pricing-box">
-            <div class="price">
-              $200 <span>/Month</span>
+          <div class="single-pricing-box">
+            <h3>Enterprise Plan</h3>
+            <div class="pricing-price">
+              <span class="price">$200</span>
+              <span class="validity">/ 10000 tokens</span>
             </div>
-            <div class="pricing-features">
-              <ul>
-                <li>10000 Tokens</li>
-                <li>Enterprise Support</li>
-                <li>Dedicated Agent</li>
-                <li>Custom Integrations</li>
-              </ul>
-            </div>
-            <NuxtLink to="/purchase/enterprise" class="btn btn-primary">Select Plan</NuxtLink>
+            <p>Designed for installers and large-scale smart home projects.</p>
+            <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink>
           </div>
         </div>
       </div>
@@ -68,10 +53,10 @@ export default {
   name: 'Pricing',
   head() {
     return {
-      title: 'IXome.ai - Subscription Plans',
+      title: 'IXome.ai - Pricing',
       meta: [
-        { name: 'description', content: 'Choose your IXome.ai subscription plan for smart home support.' },
-        { name: 'keywords', content: 'smart home subscription, Control4, Lutron, AI chatbot pricing' }
+        { name: 'description', content: 'Explore IXome.ai’s pricing plans for AI-powered smart home support.' },
+        { name: 'keywords', content: 'smart home pricing, Control4, Lutron, AI subscription' }
       ]
     }
   }
@@ -121,10 +106,10 @@ export default {
   margin: 0 auto;
 }
 
-.pricing-box {
+.single-pricing-box {
   text-align: center;
-  background-color: #ffffff;
   padding: 30px;
+  background-color: #ffffff;
   border-radius: 5px;
   margin-bottom: 30px;
   box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
@@ -132,50 +117,46 @@ export default {
   transition: 0.6s;
 }
 
-.pricing-box .price {
-  font-size: 50px;
+.single-pricing-box h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.single-pricing-box .pricing-price {
+  margin-bottom: 15px;
+}
+
+.single-pricing-box .pricing-price .price {
+  font-size: 36px;
   font-weight: 700;
   color: #684df4;
-  margin-bottom: 30px;
 }
 
-.pricing-box .price span {
-  font-size: 15px;
-  font-weight: 400;
+.single-pricing-box .pricing-price .validity {
+  font-size: 16px;
   color: #5c5c5c;
-  font-style: italic;
 }
 
-.pricing-box .pricing-features {
-  margin-bottom: 30px;
+.single-pricing-box p {
+  margin-bottom: 20px;
 }
 
-.pricing-box .pricing-features ul {
-  padding: 0;
-  list-style-type: none;
-  margin: 0;
+.single-pricing-box .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 500;
 }
 
-.pricing-box .pricing-features ul li {
-  margin-bottom: 12px;
-  color: #5c5c5c;
-  position: relative;
-  padding-left: 20px;
-  font-weight: 400;
+.single-pricing-box .btn-primary:hover {
+  background-color: #28a745;
+  border-color: #28a745;
 }
 
-.pricing-box .pricing-features ul li i {
-  color: #684df4;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.pricing-box .pricing-features ul li:last-child {
-  margin-bottom: 0;
-}
-
-.pricing-box:hover {
+.single-pricing-box:hover {
   -webkit-transform: translateY(-10px);
   transform: translateY(-10px);
 }

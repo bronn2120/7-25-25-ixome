@@ -1,45 +1,42 @@
 import sys
 import os
-sys.path.append('/home/vincent/ixome')  # Ensure agents directory is in path
+sys.path.append('/home/vincent/ixome')
+sys.path.append('/home/vincent/ixome/agents')
 
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_socketio import SocketIO, emit
 from agents.chat_agent import ChatAgent
 from agents.marketing_agent import MarketingAgent
 from agents.social_agent import SocialAgent
+from agents.writing_agent import WritingAgent
+from agents.ceo_agent import CEOAgent
 import logging
 from asgiref.wsgi import WsgiToAsgi
 from dotenv import load_dotenv
 import requests
 import random
+from datetime import timedelta
 
-# Load environment variables
 load_dotenv()
-
-# Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', '1c5565f83a9180cd3b7c544da8d8faf1623613d1b6c50f06d6702d8f6d641779')
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your_default_jwt_secret_key')
-
-# Set up CORS
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://ixome.ai"]}}, supports_credentials=True)
-
-# Initialize JWT and SocketIO
 jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins=["http://localhost:3000", "https://ixome.ai"])
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize agents
 print("Initializing agents")
 try:
     agent = ChatAgent()
     marketing_agent = MarketingAgent()
     social_agent = SocialAgent()
+    writing_agent = WritingAgent()
+    ceo_agent = CEOAgent()
     logger.info("Agents initialized successfully")
 except ImportError as e:
     logger.error(f"Failed to import agents: {str(e)}")
@@ -48,10 +45,7 @@ except Exception as e:
     logger.error(f"Failed to initialize agents: {str(e)}")
     raise
 
-# Mock user database (temporary for testing without Strapi)
 users = {'test': {'username': 'test', 'email': 'test@example.com', 'password': 'test', 'tokens': 100}}
-
-# Strapi API configuration
 STRAPI_URL = os.environ.get('STRAPI_URL', 'http://localhost:1337')
 STRAPI_JWT = os.environ.get('STRAPI_JWT', 'your_strapi_jwt')
 
@@ -64,6 +58,7 @@ def check_subscription(user_id):
             if user:
                 subscription = user.get('attributes', {}).get('subscription', {})
                 tokens = subscription.get('tokens', 0)
+                ceo_agent.orchestrate(user_id, {'tokens': tokens})
                 if tokens > 0 or (not user.get('attributes', {}).get('first_visit_done', False)):
                     return True
                 return False
@@ -72,7 +67,6 @@ def check_subscription(user_id):
         logger.error(f"Error checking subscription: {e}")
         return user_id in users and users[user_id]['tokens'] > 0
 
-# Homepage data endpoint
 @app.route('/homepage_data')
 def homepage_data():
     try:
@@ -90,7 +84,6 @@ def homepage_data():
         logger.error(f"Error generating homepage data: {e}")
         return jsonify({"error": "Failed to load homepage data"}), 500
 
-# Socket.IO event handlers
 @socketio.on('connect')
 @jwt_required()
 def handle_connect():
@@ -120,6 +113,14 @@ async def handle_message(data):
 
     try:
         result = await agent.process_input("text", user_message, current_user)
+        if user_message.lower().startswith("set tokens to"):
+            try:
+                tokens = int(user_message.split()[-1])
+                users[current_user]['tokens'] = tokens
+                ceo_result = ceo_agent.orchestrate(current_user, {'tokens': tokens})
+                result = f"{result} | CEO Agent: {ceo_result}"
+            except ValueError:
+                result = f"{result} | Invalid token value"
         emit('response', {'text': result})
         if is_technical and check_subscription(current_user):
             if current_user in users:
@@ -138,18 +139,16 @@ async def handle_message(data):
         logger.error(f"Error processing message: {e}")
         emit('response', {'text': f"Oops! Something went wrong. Try again later! ({str(e)})"})
 
-# Define the /login route
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
     if username in users and users[username]['password'] == password:
-        access_token = create_access_token(identity=username)
+        access_token = create_access_token(identity=username, expires_delta=timedelta(hours=1))
         return jsonify(access_token=access_token), 200
     return jsonify({"msg": "Bad credentials"}), 401
 
-# Define the /signup route
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -159,12 +158,11 @@ def signup():
     if username and email and password:
         if username not in users:
             users[username] = {'username': username, 'email': email, 'password': password, 'tokens': 100}
-            access_token = create_access_token(identity=username)
+            access_token = create_access_token(identity=username, expires_delta=timedelta(hours=1))
             return jsonify(access_token=access_token), 200
         return jsonify({"msg": "Username already exists"}), 400
     return jsonify({"msg": "Missing required fields"}), 400
 
-# Define the /contact route
 @app.route('/contact', methods=['POST'])
 def contact():
     data = request.get_json()
@@ -173,11 +171,22 @@ def contact():
     message = data.get('message')
     if name and email and message:
         logger.info(f"Received contact form: {name}, {email}, {message}")
-        # TODO: Save to database or send email
         return jsonify({'success': True, 'msg': 'Message received'}), 200
     return jsonify({'msg': 'Missing required fields'}), 400
 
-# Define the /process route
+@app.route('/blog/generate', methods=['POST'])
+@jwt_required()
+def generate_blog():
+    try:
+        data = request.get_json()
+        topic = data.get('topic', 'smart home automation')
+        logger.info(f"Generating blog post for topic: {topic}")
+        blog_content = writing_agent.generate_content(topic)
+        return jsonify({'title': f"{topic.title()} Insights", 'content': blog_content}), 200
+    except Exception as e:
+        logger.error(f"Error generating blog post: {e}")
+        return jsonify({'error': f"Failed to generate blog post: {str(e)}"}), 500
+
 @app.route('/process', methods=['POST'])
 @jwt_required()
 async def process():
@@ -191,6 +200,14 @@ async def process():
         current_user = get_jwt_identity()
         logger.info(f"Processing request for user: {current_user}")
         result = await agent.process_input(data['input_type'], data['input_data'], current_user)
+        if data['input_data'].lower().startswith("set tokens to"):
+            try:
+                tokens = int(data['input_data'].split()[-1])
+                users[current_user]['tokens'] = tokens
+                ceo_result = ceo_agent.orchestrate(current_user, {'tokens': tokens})
+                result = f"{result} | CEO Agent: {ceo_result}"
+            except ValueError:
+                result = f"{result} | Invalid token value"
         logger.info(f"ChatAgent result: {result}")
         return jsonify({'result': result})
     except Exception as e:
@@ -201,7 +218,6 @@ async def process():
 def home():
     return "Flask app is running!"
 
-# Wrap Flask app for ASGI compatibility
 asgi_app = WsgiToAsgi(app)
 
 if __name__ == '__main__':

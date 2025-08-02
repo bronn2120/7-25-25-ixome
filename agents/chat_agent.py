@@ -15,17 +15,17 @@ import numpy as np
 from dotenv import load_dotenv
 import getpass
 import time
-from langchain_openai import OpenAIEmbeddings  # Added: For dynamic ADA-003 embeddings (fits your OpenAI usage; handles variable lengths)
-from core.db import insert_dealer_info, query_sqlite  # Added: SQLite hybrid for exact matches (fits your note on 100% answers with Pinecone)
+from langchain_openai import OpenAIEmbeddings
+from core.db import insert_dealer_info, query_sqlite
 
-# Load environment variables (unchanged)
+# Load environment variables
 load_dotenv(dotenv_path='/home/vincent/ixome/.env', override=True)
 
-# Initialize logging (unchanged)
+# Initialize logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Verify and set API keys (unchanged)
+# Verify and set API keys
 openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key:
     logger.error("OPENAI_API_KEY not found in .env file!")
@@ -44,25 +44,25 @@ if not google_credentials_path:
     google_credentials_path = getpass.getpass("Please enter GOOGLE_APPLICATION_CREDENTIALS path: ")
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_credentials_path
 
-# Initialize clients (added embeddings for dynamic; fits Grok 4 fallback later)
+# Initialize clients
 client = OpenAI(api_key=openai_api_key)
-embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")  # ADA-003 style; dynamic, variable length (replace model with "grok-4" when xAI API ready)
+embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
 pc = PineconeClient(api_key=pinecone_api_key)
 speech_client = speech.SpeechClient()
 vision_client = vision.ImageAnnotatorClient()
 
-# Initialize Pinecone index (unchanged)
+# Initialize Pinecone index
 index_name = "troubleshooter-index"
 if index_name not in pc.list_indexes().names():
     pc.create_index(
         name=index_name,
-        dimension=3072,  # Dimension for text-embedding-3-large
+        dimension=3072,
         metric='cosine',
         spec={'serverless': {'cloud': 'aws', 'region': os.getenv("PINECONE_ENVIRONMENT", "us-east-1")}}
     )
 index = pc.Index(index_name)
 
-# Define Pydantic models (unchanged)
+# Define Pydantic models
 class ClientQuery(BaseModel):
     query: str
     client_id: Optional[str] = None
@@ -81,6 +81,7 @@ class AgentState(BaseModel):
     issue: Optional[str] = None
     solution: Optional[Solution] = None
     result: Dict = {}
+    user_id: Optional[str] = None
 
 class ChatAgent:
     def __init__(self):
@@ -90,7 +91,7 @@ class ChatAgent:
         self.vision_client = vision_client
         self.index = index
 
-        # Set up LangGraph workflow (unchanged)
+        # Set up LangGraph workflow
         self.graph = Graph()
         self.graph.add_node("input", self.input_node)
         self.graph.add_node("text_processing", self.text_processing_node)
@@ -115,7 +116,7 @@ class ChatAgent:
         self.app = self.graph.compile()
 
     async def input_node(self, state: AgentState) -> AgentState:
-        self.logger.info(f"Received input: type={state.input_type}, data=<data>")
+        self.logger.info(f"Received input: type={state.input_type}, data=<data>, user_id={state.user_id}")
         return state
 
     async def text_processing_node(self, state: AgentState) -> AgentState:
@@ -199,15 +200,15 @@ class ChatAgent:
 
     async def solution_retrieval_node(self, state: AgentState) -> AgentState:
         try:
-            # Dynamic embedding with ADA-003 via LangChain (fits your note on variable lengths; replaces fixed client.create for flexibility)
+            # Dynamic embedding with ADA-003 via LangChain
             embedding_input = state.processed_input or "unknown issue"
-            embedding = embeddings.embed_query(embedding_input)  # LangChain handles dynamic inputs/variables
+            embedding = embeddings.embed_query(embedding_input)
             results = self.index.query(vector=embedding, top_k=1, include_metadata=True)
             if results['matches']:
                 solution_text = results['matches'][0]['metadata'].get('solution', "No solution found")
                 confidence = results['matches'][0]['score']
-                # Hybrid: Append SQLite exact match (for 100% answers, pairs with vectors as per your note)
-                brand = "Lutron" if "lutron" in embedding_input.lower() else "Unknown"  # Example detection; expand for Control4 etc.
+                # Hybrid: Append SQLite exact match
+                brand = "Lutron" if "lutron" in embedding_input.lower() else "Unknown"
                 component = state.issue if state.issue else "Unknown"
                 sqlite_result = query_sqlite(brand, component)
                 solution_text += f"\nExact dealer info from SQLite: {sqlite_result}"
@@ -217,7 +218,7 @@ class ChatAgent:
         except Exception as e:
             self.logger.error(f"Pinecone/SQLite query failed: {e}")
 
-        # Fallback solutions (unchanged, but add example insert for SQLite test—remove after initial run)
+        # Fallback solutions
         solutions = {
             "no_sound": "Check if the sound system is turned on and cables are connected.",
             "tv_not_turning_on": "Ensure the TV is plugged in and the power cable is secure.",
@@ -225,7 +226,7 @@ class ChatAgent:
             "error_code": "Note the flashing light pattern and consult the device manual."
         }
         solution_text = solutions.get(state.issue, "Issue not recognized. Please provide more details.")
-        # Example insert to SQLite for test (fits Lutron focus; run once)
+        # Example insert to SQLite for test
         insert_dealer_info("Lutron", "Dealer tip: Reset Lutron bridge for audio issues.", "audio")
         state.solution = Solution(solution=solution_text, confidence=0.5, source="Fallback")
         self.logger.info(f"Retrieved fallback solution: {solution_text}")
@@ -233,18 +234,19 @@ class ChatAgent:
 
     async def response_generation_node(self, state: AgentState) -> AgentState:
         if state.solution and state.solution.solution:
-            response = f"Little Einstein: {state.solution.solution}"
+            response = f"Little Einstein: {state.solution.solution} (For user: {state.user_id})"
         else:
-            response = "Little Einstein: No specific solution found. Please check the device manual or contact support."
+            response = f"Little Einstein: No specific solution found. Please check the device manual or contact support. (For user: {state.user_id})"
         state.result = {"status": "success", "response": response, "message": "Solution provided"}
         self.logger.info(f"Generated response: {response}")
         return state
 
-    async def process_input(self, input_type: str, input_data: Any) -> Dict[str, Any]:
+    async def process_input(self, input_type: str, input_data: Any, user_id: str) -> Dict[str, Any]:
         state = AgentState(
             input_type=input_type,
             input_data=input_data if input_type != "text" else None,
-            query=ClientQuery(query=input_data if input_type == "text" else "", timestamp=time.strftime("%Y-%m-%d %H:%M:%S"))
+            query=ClientQuery(query=input_data if input_type == "text" else "", timestamp=time.strftime("%Y-%m-%d %H:%M:%S")),
+            user_id=user_id
         )
         result = await self.app.ainvoke(state)
         return result.result
@@ -252,17 +254,17 @@ class ChatAgent:
 if __name__ == "__main__":
     async def test():
         agent = ChatAgent()
-        response = await agent.process_input("text", "My TV has no sound.")
+        response = await agent.process_input("text", "My TV has no sound.", "test")
         print(f"Text Response: {response}")
         try:
             with open("/home/vincent/ixome/notebooks/test_audio.wav", "rb") as f:
-                response = await agent.process_input("voice", f.read())
+                response = await agent.process_input("voice", f.read(), "test")
             print(f"Voice Response: {response}")
         except FileNotFoundError:
             print("Voice test skipped: test_audio.wav not found")
         try:
             with open("/home/vincent/ixome/notebooks/test_video.mp4", "rb") as f:
-                response = await agent.process_input("video", f.read())
+                response = await agent.process_input("video", f.read(), "test")
             print(f"Video Response: {response}")
         except FileNotFoundError:
             print("Video test skipped: test_video.mp4 not found")

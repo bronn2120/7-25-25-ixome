@@ -1,56 +1,51 @@
-
-from dotenv import load_dotenv  # Add this line
-load_dotenv()  # Add this line to load .env
-
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAI
-from langchain.prompts import PromptTemplate
-from langchain.tools import Tool
+from langchain.chains import LLMChain  # Add correct import
+from dotenv import load_dotenv
 import os
+import tweepy
+import logging
+
+logger = logging.getLogger(__name__)
+load_dotenv(dotenv_path='/home/vincent/ixome/.env')  # Use consistent .env
 
 class SocialAgent:
     def __init__(self):
-        self.llm = OpenAI(temperature=0.7)
-
-        self.prompt = PromptTemplate.from_template(
-            "You are a social media agent for IXome.ai. Generate a social media post for {platform} about {content}.\n\n{tools}\n\nUse the following format:\n\nThought: you should always think about what to do\nAction: the action to take, should be one of [{tool_names}]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nThought:{agent_scratchpad}"
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment variables")
+        self.llm = OpenAI(temperature=0.7, openai_api_key=api_key)
+        self.prompt_template = PromptTemplate(
+            input_variables=["topic"],
+            template="Generate a concise, engaging X post (280 characters or less) for IXome.ai on the topic '{topic}' with SEO keywords 'smart home chatbot', 'Control4 troubleshooting', 'Lutron support'."
         )
-
-        self.tools = [
-            Tool(
-                name="Post to X",
-                func=self.post_to_x,
-                description="Post to X (Twitter)"
-            ),
-            Tool(
-                name="Post to Facebook",
-                func=self.post_to_facebook,
-                description="Post to Facebook"
+        self.chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
+        # Initialize X API
+        consumer_key = os.environ.get("X_CONSUMER_KEY")
+        consumer_secret = os.environ.get("X_CONSUMER_SECRET")
+        access_token = os.environ.get("X_ACCESS_TOKEN")
+        access_token_secret = os.environ.get("X_ACCESS_TOKEN_SECRET")
+        if not all([consumer_key, consumer_secret, access_token, access_token_secret]):
+            logger.warning("X API credentials not found; social posts will not be sent")
+            self.client = None
+        else:
+            self.client = tweepy.Client(
+                consumer_key=consumer_key,
+                consumer_secret=consumer_secret,
+                access_token=access_token,
+                access_token_secret=access_token_secret
             )
-        ]
 
-        self.agent = create_react_agent(self.llm, self.tools, self.prompt)
-        self.agent_executor = AgentExecutor(agent=self.agent, tools=self.tools, verbose=True)
-
-    def post_to_x(self, content):
-        x_api_key = os.getenv('X_API_KEY')
-        if not x_api_key:
-            return "X API key not set. Post not sent."
-        # Placeholder for X API call - replace with actual API integration if available
-        return f"Posted to X: {content}"
-
-    def post_to_facebook(self, content):
-        fb_token = os.getenv('FACEBOOK_ACCESS_TOKEN')
-        if not fb_token:
-            return "Facebook access token not set. Post not sent."
-        # Placeholder for Facebook API call - replace with actual API integration if available
-        return f"Posted to Facebook: {content}"
-
-    def promote(self, content="", platform="X"):
-        result = self.agent_executor.invoke({"platform": platform, "content": content, "agent_scratchpad": ""})
-        return {'content': result['output']}
-
-# For testing
-if __name__ == "__main__":
-    agent = SocialAgent()
-    print(agent.promote("New subscription offer"))
+    def promote(self, topic="smart home automation"):
+        """Generate and post to X."""
+        try:
+            post_content = self.chain.run(topic=topic)
+            if self.client:
+                self.client.create_tweet(text=post_content)
+                logger.info(f"Posted to X: {post_content}")
+            else:
+                logger.info(f"Generated X post (not sent, no credentials): {post_content}")
+            return {"status": "success", "post": post_content}
+        except Exception as e:
+            logger.error(f"Error generating or posting to X: {e}")
+            return {"status": "error", "message": str(e)}

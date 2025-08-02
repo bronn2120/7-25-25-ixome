@@ -1,54 +1,58 @@
 import sqlite3
-import os
-from dotenv import load_dotenv  # Fits your existing env usage in chat_agent.py
+import logging
 
-load_dotenv()
+logger = logging.getLogger(__name__)
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'company.db')  # In core/
+def init_db():
+    """Initialize the SQLite database and create dealer_info table."""
+    try:
+        conn = sqlite3.connect('/home/vincent/ixome/core/database.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS dealer_info (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                brand TEXT,
+                solution TEXT,
+                component TEXT
+            )
+        ''')
+        conn.commit()
+        logger.info("Initialized dealer_info table")
+    except Exception as e:
+        logger.error(f"Error initializing database: {e}")
+    finally:
+        conn.close()
 
-def init_sqlite():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS dealer_info
-                 (id INTEGER PRIMARY KEY, brand TEXT, info TEXT, component TEXT)''')
-    conn.commit()
-    conn.close()
+def insert_dealer_info(brand: str, solution: str, component: str):
+    """Insert dealer info into SQLite database."""
+    try:
+        conn = sqlite3.connect('/home/vincent/ixome/core/database.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO dealer_info (brand, solution, component) VALUES (?, ?, ?)', (brand, solution, component))
+        conn.commit()
+        logger.info(f"Inserted dealer info: brand={brand}, component={component}")
+    except Exception as e:
+        logger.error(f"Error inserting dealer info: {e}")
+    finally:
+        conn.close()
 
-def insert_dealer_info(brand, info, component):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT INTO dealer_info (brand, info, component) VALUES (?, ?, ?)", (brand, info, component))
-    conn.commit()
-    conn.close()
+def query_sqlite(brand: str, component: str) -> str:
+    """Query dealer info from SQLite database."""
+    try:
+        conn = sqlite3.connect('/home/vincent/ixome/core/database.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT solution FROM dealer_info WHERE brand = ? AND component = ?', (brand, component))
+        result = cursor.fetchone()
+        if result:
+            logger.info(f"Found dealer info for brand={brand}, component={component}")
+            return result[0]
+        logger.info(f"No dealer info found for brand={brand}, component={component}")
+        return "No exact match found in dealer database."
+    except Exception as e:
+        logger.error(f"Error querying dealer info: {e}")
+        return f"Error querying database: {str(e)}"
+    finally:
+        conn.close()
 
-def query_sqlite(brand, component):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT info FROM dealer_info WHERE brand=? AND component=?", (brand, component))
-    result = c.fetchone()
-    conn.close()
-    return result[0] if result else "No exact dealer info found—check Pinecone for similar."
-
-def list_all_entries():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT * FROM dealer_info")
-    results = c.fetchall()
-    conn.close()
-    if not results:
-        return "No entries in database."
-    # Print in table format (fits for console check in autonomous company monitoring)
-    print("ID | Brand | Component | Info (truncated to 100 chars)")
-    print("-" * 50)
-    for row in results:
-        id, brand, info, component = row
-        truncated_info = info[:100] + '...' if len(info) > 100 else info
-        print(f"{id} | {brand} | {component} | {truncated_info}")
-    return results  # Return full for integration in agents
-
-# Test block (run standalone: python core/db.py)
-if __name__ == "__main__":
-    init_sqlite()  # Creates table if not exists
-    insert_dealer_info("Lutron", "Test info: Reset bridge for no sound.", "audio")  # Example insert
-    print(query_sqlite("Lutron", "audio"))  # Should print the inserted info
-    list_all_entries()  # Prints all
+# Initialize database on import
+init_db()

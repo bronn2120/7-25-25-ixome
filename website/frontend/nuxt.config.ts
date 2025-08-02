@@ -1,65 +1,56 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  app: {
-    pageTransition: {
-      name: 'fade',
-      mode: 'out-in'
-    },
-    layoutTransition: {
-      name: 'slide',
-      mode: 'out-in'
+  compatibilityDate: '2025-08-02',
+  modules: ['@nuxtjs/strapi', '@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxtjs/i18n'],
+  strapi: {
+    url: 'http://localhost:1337',
+    prefix: '/api',
+    version: 'v4',
+    token: 'your_strapi_jwt  # Replace with the new token'
+  },
+  tailwindcss: {
+    cssPath: '~/assets/css/tailwind.css',
+    configPath: 'tailwind.config.js',
+    exposeConfig: false,
+    viewer: true,
+  },
+  colorMode: {
+    preference: 'system',
+    fallback: 'light',
+    hid: 'nuxt-color-mode-script',
+    globalName: '__NUXT_COLOR_MODE__',
+    componentName: 'ColorScheme',
+    classPrefix: '',
+    classSuffix: '-mode',
+    storageKey: 'nuxt-color-mode'
+  },
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en-US', file: 'en.js', name: 'English' }
+    ],
+    defaultLocale: 'en',
+    langDir: 'locales/',
+    lazy: true
+  },
+  css: ['~/assets/css/main.css'],
+  build: {
+    transpile: ['gsap']
+  },
+  runtimeConfig: {
+    public: {
+      strapiUrl: 'http://localhost:1337'
     }
   },
-  css: [
-    "/assets/css/animate.css",
-    'bootstrap/dist/css/bootstrap.min.css',
-    "/assets/css/flaticon.css",
-    "/assets/css/boxicons.min.css",
-    "/assets/css/main.scss",
-    "/assets/css/it-startup.scss",
-    "/assets/css/developer.scss",
-    "/assets/css/web-hosting.scss",
-    "/assets/css/iot.scss",
-    "/assets/css/machine-learning.scss",
-    "/assets/css/digital-agency.scss",
-    "/assets/css/agency-portfolio.scss",
-    "/assets/css/bigdata-analytics.scss",
-    "/assets/css/shop.scss",
-    "/assets/css/products-details.scss",
-    "/assets/css/cart.scss",
-    "/assets/css/checkout.scss",
-    "/assets/css/repair-center.scss",
-    "/assets/css/features.scss",
-    "/assets/css/service-details.scss",
-    "/assets/css/feature-details.scss",
-    "/assets/css/feedback.scss",
-    "/assets/css/projects.scss",
-    "/assets/css/project-details.scss",
-    "/assets/css/team.scss",
-    "/assets/css/coming-soon.scss",
-    "/assets/css/blog.scss",
-    "/assets/css/blog-details.scss",
-    "/assets/css/contact.scss",
-    "/assets/css/responsive.scss",
-  ],
-  modules: [
-    '@bootstrap-vue-next/nuxt',
-    'nuxt-feather-icons',
-    'vue3-carousel-nuxt',
-    '@pinia/nuxt',
-    '@nuxtjs/strapi',
-  ],
-  carousel: {
-    prefix: 'MyPrefix'
-  },
-  strapi: {
-    url: process.env.STRAPI_URL || 'http://localhost:1337',
-    prefix: '/api',
-    admin: '/admin',
-    version: 'v4',
-    cookie: {},
-    cookieName: 'strapi_jwt'
-  },
-  plugins: [],
-  compatibilityDate: '2025-07-25'
-})
+  app: {
+    head: {
+      title: 'IXome.ai - Smart Home Automation',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { hid: 'description', name: 'description', content: 'IXome.ai provides AI-driven smart home solutions with Control4 and Lutron support.' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      ]
+    }
+  }
+});

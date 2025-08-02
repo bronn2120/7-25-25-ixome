@@ -645,16 +645,6 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "bootstrapVueNext": {
-      "directives": [
-        "vBColorMode",
-        "vBModal",
-        "vBPopover",
-        "vBScrollspy",
-        "vBToggle",
-        "vBTooltip"
-      ]
-    },
     "strapi": {
       "url": "http://localhost:1337",
       "prefix": "/api",
@@ -663,7 +653,8 @@ const _inlineRuntimeConfig = {
       "cookie": {},
       "auth": {},
       "cookieName": "strapi_jwt",
-      "devtools": false
+      "devtools": false,
+      "token": "your_strapi_jwt"
     }
   },
   "strapi": {
@@ -674,7 +665,8 @@ const _inlineRuntimeConfig = {
     "cookie": {},
     "auth": {},
     "cookieName": "strapi_jwt",
-    "devtools": false
+    "devtools": false,
+    "token": "your_strapi_jwt"
   }
 };
 const envOptions = {

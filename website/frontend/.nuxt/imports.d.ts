@@ -38,7 +38,5 @@ export { useStrapiUser } from '../node_modules/@nuxtjs/strapi/dist/runtime/compo
 export { useStrapiVersion } from '../node_modules/@nuxtjs/strapi/dist/runtime/composables/useStrapiVersion';
 export { useStrapi } from '../node_modules/@nuxtjs/strapi/dist/runtime/composables-v4/useStrapi';
 export { useStrapi4 } from '../node_modules/@nuxtjs/strapi/dist/runtime/composables-v4/useStrapi4';
-export { useBreadcrumb, useColorMode, useModal, useModalController, useScrollspy, useToast } from 'bootstrap-vue-next';
-export { defineStore, acceptHMRUpdate, usePinia, storeToRefs } from '../node_modules/@pinia/nuxt/dist/runtime/composables';
 export { useNuxtDevTools } from '../node_modules/@nuxt/devtools/dist/runtime/use-nuxt-devtools';
 export { definePageMeta } from '../node_modules/nuxt/dist/pages/runtime/composables';
