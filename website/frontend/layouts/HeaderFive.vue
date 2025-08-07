@@ -1,142 +1,107 @@
 <template>
-  <!-- Start Navbar Area -->
-  <header
-    id="header"
-    :class="['headroom', { 'is-sticky': isSticky }]"
-  >
-    <div class="startp-nav">
-      <div class="container">
-        <nav class="navbar navbar-expand-md navbar-light">
-          <NuxtLink class="navbar-brand" to="/">
-            <img src="~/assets/img/white-logo.png" alt="logo" />
-          </NuxtLink>
-
-          <b-navbar-toggle target="navbarSupportedContent"></b-navbar-toggle>
-
-          <b-collapse
-            class="collapse navbar-collapse mean-menu"
-            id="navbarSupportedContent"
-            is-nav
-          >
-            <ul class="navbar-nav nav ml-auto">
-              <li class="nav-item">
-                <NuxtLink to="/" class="nav-link" exact>
-                  Home
-                </NuxtLink>
-              </li>
-
-              <li class="nav-item">
-                <NuxtLink to="/about" class="nav-link">
-                  About
-                </NuxtLink>
-              </li>
-
-              <li class="nav-item">
-                <NuxtLink to="/services" class="nav-link">
-                  Services
-                </NuxtLink>
-              </li>
-
-              <li class="nav-item">
-                <NuxtLink to="/pricing" class="nav-link">
-                  Pricing
-                </NuxtLink>
-              </li>
-
-              <li class="nav-item">
-                <NuxtLink to="/projects" class="nav-link">
-                  Projects
-                </NuxtLink>
-              </li>
-
-              <li class="nav-item">
-                <NuxtLink to="/blog" class="nav-link">
-                  Blog
-                </NuxtLink>
-              </li>
-
-              <li class="nav-item">
-                <NuxtLink to="/contact" class="nav-link">
-                  Contact
-                </NuxtLink>
-              </li>
-
-              <li class="nav-item">
-                <NuxtLink to="/login" class="nav-link">
-                  Login
-                </NuxtLink>
-              </li>
-            </ul>
-          </b-collapse>
-
-          <div class="others-option">
-            <a href="#" class="btn btn-primary">Schedule a Demo</a>
-          </div>
-        </nav>
+  <header class="header-area">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container mx-auto px-4">
+        <NuxtLink class="navbar-brand" to="/">
+          <img src="/logo.png" alt="IXome.ai Logo" class="h-12" loading="lazy" />
+        </NuxtLink>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto space-x-4">
+            <li class="nav-item"><NuxtLink class="nav-link" to="/" exact>Home</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/about">About</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/services">Services</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/pricing">Pricing</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/projects">Projects</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/blog">Blog</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/contact">Contact</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/login">Login</NuxtLink></li>
+            <li class="nav-item"><NuxtLink class="nav-link" to="/signup">Sign Up</NuxtLink></li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </nav>
   </header>
-  <!-- End Navbar Area -->
 </template>
 
-<script>
-export default {
-  name: "HeaderFive",
-  data() {
-    return {
-      isSticky: false,
-    };
-  },
+<script setup>
+import { NuxtLink } from '#components';
+import { onMounted } from 'vue';
+import * as bootstrap from 'bootstrap';
 
-  mounted() {
-    const that = this;
-    window.addEventListener("scroll", () => {
-      let scrollPos = window.scrollY;
-      if (scrollPos >= 300) {
-        that.isSticky = true;
-      } else {
-        that.isSticky = false;
-      }
-    });
-  },
-};
+onMounted(() => {
+  console.log('HeaderFive.vue mounted');
+  if (typeof window !== 'undefined') {
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.querySelector('#navbarNav');
+    if (navbarToggler && navbarCollapse) {
+      console.log('Navbar elements found, initializing Bootstrap collapse');
+      new bootstrap.Collapse(navbarCollapse, { toggle: false });
+    } else {
+      console.error('Navbar toggler or collapse not found');
+    }
+  }
+});
 </script>
 
 <style scoped>
-.headroom {
-  background-color: #ffffff; /* White background like template */
+.header-area {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #343a40;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.headroom.is-sticky {
-  background-color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
 .navbar-nav .nav-link {
-  color: #007bff; /* Blue links like template */
   font-weight: 500;
-  font-size: 16px;
-  padding: 10px 15px;
+  font-size: 1rem;
+  color: #ffffff !important;
   transition: color 0.3s ease;
+  padding: 0.5rem 1rem;
 }
 
 .navbar-nav .nav-link:hover,
 .navbar-nav .nav-link.active {
-  color: #28a745; /* Light green hover like template */
+  color: #007bff !important;
 }
 
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: #ffffff;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-weight: 500;
+.navbar-toggler {
+  border-color: #ffffff;
 }
 
-.btn-primary:hover {
-  background-color: #28a745;
-  border-color: #28a745;
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.navbar-collapse {
+  background-color: #343a40;
+}
+
+@media (max-width: 991px) {
+  .navbar-nav {
+    padding-top: 0.5rem;
+    background-color: #343a40;
+  }
+
+  .nav-item {
+    margin-bottom: 0.5rem;
+  }
+
+  .nav-link {
+    font-size: 0.9375rem;
+  }
 }
 </style>

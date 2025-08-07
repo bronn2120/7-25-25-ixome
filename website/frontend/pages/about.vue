@@ -1,18 +1,18 @@
 <template>
   <div class="about-area ptb-80">
-    <div class="container">
+    <div class="container mx-auto px-4">
       <div class="row">
         <div class="col-lg-6 col-md-12">
           <div class="about-content">
-            <h2>About IXome.ai</h2>
-            <p>IXome.ai delivers advanced chatbot solutions for Control4 and Lutron systems, with subscription tiers and autonomous agents that handle updates without manual intervention.</p>
-            <p>Our AI agents, including the CEO Agent and Chat Agent, provide seamless troubleshooting and support, ensuring your smart home runs smoothly. Subscribe today to experience the future of home automation.</p>
+            <h2 class="text-4xl font-bold mb-5">About IXome.ai</h2>
+            <p class="mb-5 text-gray-600">IXome.ai delivers advanced chatbot solutions for Control4 and Lutron systems, with subscription tiers and autonomous agents that handle updates without manual intervention.</p>
+            <p class="mb-5 text-gray-600">Our AI agents, including the CEO Agent and Chat Agent, provide seamless troubleshooting and support, ensuring your smart home runs smoothly. Subscribe today to experience the future of home automation.</p>
             <NuxtLink to="/pricing" class="btn btn-primary">Get Started</NuxtLink>
           </div>
         </div>
         <div class="col-lg-6 col-md-12">
           <div class="about-image">
-            <img src="~/assets/img/about.jpg" alt="image">
+            <img src="~/assets/img/about.jpg" alt="About IXome.ai" loading="lazy" class="rounded-md w-full">
           </div>
         </div>
       </div>
@@ -20,19 +20,16 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'About',
-  head() {
-    return {
-      title: 'IXome.ai - About',
-      meta: [
-        { name: 'description', content: 'Learn about IXome.ai’s AI-powered smart home solutions for Control4 and Lutron systems.' },
-        { name: 'keywords', content: 'smart home AI, Control4, Lutron, autonomous agents' }
-      ]
-    }
-  }
-}
+<script setup>
+import { NuxtLink } from '#components';
+
+useHead({
+  title: 'IXome.ai - About',
+  meta: [
+    { name: 'description', content: 'Learn about IXome.ai’s AI-powered smart home solutions for Control4 and Lutron systems.' },
+    { name: 'keywords', content: 'smart home AI, Control4, Lutron, autonomous agents' }
+  ]
+});
 </script>
 
 <style scoped>
@@ -58,6 +55,7 @@ export default {
   padding: 10px 20px;
   border-radius: 5px;
   font-weight: 500;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-primary:hover {

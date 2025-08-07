@@ -1,10 +1,10 @@
-export default ({ env }) => ({
-  host: env('HOST', '0.0.0.0'),
+module.exports = ({ env }) => ({
+  host: '0.0.0.0', // Bind to all interfaces
   port: env.int('PORT', 1337),
   app: {
-    keys: ['ixomeKeyA', 'ixomeKeyB']
+    keys: env.array('APP_KEYS'),
   },
-  webhooks: {
-    populateRelations: env.bool('WEBHOOKS_POPULATE_RELATIONS', false),
+  admin: {
+    url: '/admin',
   },
 });

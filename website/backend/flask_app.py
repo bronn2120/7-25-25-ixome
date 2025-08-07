@@ -18,12 +18,14 @@ from dotenv import load_dotenv
 import requests
 import random
 from datetime import timedelta
+import base64
+import json
 
 load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', '1c5565f83a9180cd3b7c544da8d8faf1623613d1b6c50f06d6702d8f6d641779')
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your_default_jwt_secret_key')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', '1c5565f83a9180cd3b7c544da8d8faf1623613d1b6c50f06d6702d8f6d641779')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=365)  # Tokens expire in 1 year
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://ixome.ai"]}}, supports_credentials=True)
 jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins=["http://localhost:3000", "https://ixome.ai"])
@@ -47,7 +49,7 @@ except Exception as e:
 
 users = {'test': {'username': 'test', 'email': 'test@example.com', 'password': 'test', 'tokens': 100}}
 STRAPI_URL = os.environ.get('STRAPI_URL', 'http://localhost:1337')
-STRAPI_JWT = os.environ.get('STRAPI_JWT', 'your_strapi_jwt')
+STRAPI_JWT = os.environ.get('STRAPI_JWT', '0cd0e40004e6754b99c87190736e1c94094ae5383fab2896f0cceb79f63df1ce3d788d04f45057fd06830bb22a8d91e9af9d6d79ae28694a94df84dcc4c93b490b3a6c72b795195702e380ec0ca9280ba9ca958cf5ef190d548eba87982c9459453c00d92948c94122606f9f4cee9964bef15f2d406e2e7de45bfac23fc4aa22')
 
 def check_subscription(user_id):
     try:
@@ -144,10 +146,20 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    if not username or not password:
+        logger.error("Missing login fields")
+        return jsonify({"msg": "Missing username or password"}), 400
     if username in users and users[username]['password'] == password:
-        access_token = create_access_token(identity=username, expires_delta=timedelta(hours=1))
-        return jsonify(access_token=access_token), 200
-    return jsonify({"msg": "Bad credentials"}), 401
+        access_token = create_access_token(identity=username, expires_delta=timedelta(days=365))
+        logger.debug(f"Generated one-year token for {username}: {access_token}")
+        try:
+            decoded = base64.b64decode(access_token.split('.')[1] + '==').decode('utf-8')
+            logger.debug(f"Decoded token payload: {decoded}")
+        except Exception as e:
+            logger.error(f"Token decode error: {e}")
+        return jsonify({"access_token": access_token, "user_id": username}), 200
+    logger.error(f"Invalid login for {username}")
+    return jsonify({"msg": "Invalid credentials"}), 401
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -155,13 +167,21 @@ def signup():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    if username and email and password:
-        if username not in users:
-            users[username] = {'username': username, 'email': email, 'password': password, 'tokens': 100}
-            access_token = create_access_token(identity=username, expires_delta=timedelta(hours=1))
-            return jsonify(access_token=access_token), 200
+    if not username or not email or not password:
+        logger.error("Missing signup fields")
+        return jsonify({"msg": "Missing required fields"}), 400
+    if username in users:
+        logger.error(f"Username {username} already exists")
         return jsonify({"msg": "Username already exists"}), 400
-    return jsonify({"msg": "Missing required fields"}), 400
+    users[username] = {'username': username, 'email': email, 'password': password, 'tokens': 100}
+    access_token = create_access_token(identity=username, expires_delta=timedelta(days=365))
+    logger.debug(f"Generated one-year token for {username}: {access_token}")
+    try:
+        decoded = base64.b64decode(access_token.split('.')[1] + '==').decode('utf-8')
+        logger.debug(f"Decoded token payload: {decoded}")
+    except Exception as e:
+        logger.error(f"Token decode error: {e}")
+    return jsonify({"access_token": access_token, "user_id": username}), 200
 
 @app.route('/contact', methods=['POST'])
 def contact():
@@ -169,10 +189,11 @@ def contact():
     name = data.get('name')
     email = data.get('email')
     message = data.get('message')
-    if name and email and message:
-        logger.info(f"Received contact form: {name}, {email}, {message}")
-        return jsonify({'success': True, 'msg': 'Message received'}), 200
-    return jsonify({'msg': 'Missing required fields'}), 400
+    if not name or not email or not message:
+        logger.error("Missing contact fields")
+        return jsonify({"msg": "Missing required fields"}), 400
+    logger.info(f"Received contact form: {name}, {email}, {message}")
+    return jsonify({'success': True, 'msg': 'Message received'}), 200
 
 @app.route('/blog/generate', methods=['POST'])
 @jwt_required()
@@ -185,7 +206,7 @@ def generate_blog():
         return jsonify({'title': f"{topic.title()} Insights", 'content': blog_content}), 200
     except Exception as e:
         logger.error(f"Error generating blog post: {e}")
-        return jsonify({'error': f"Failed to generate blog post: {str(e)}"}), 500
+        return jsonify({"error": "Failed to generate blog post: " + str(e)}), 500
 
 @app.route('/process', methods=['POST'])
 @jwt_required()
@@ -194,9 +215,11 @@ async def process():
         data = request.get_json()
         logger.info(f"Received request data: {data}")
         if not data or 'input_type' not in data or 'input_data' not in data:
-            return jsonify({'error': 'Invalid input data'}), 400
+            logger.error("Invalid input data")
+            return jsonify({"error": "Invalid input data"}), 400
         if not data['input_data'].strip():
-            return jsonify({'error': 'Input data cannot be empty'}), 400
+            logger.error("Input data cannot be empty")
+            return jsonify({"error": "Input data cannot be empty"}), 400
         current_user = get_jwt_identity()
         logger.info(f"Processing request for user: {current_user}")
         result = await agent.process_input(data['input_type'], data['input_data'], current_user)
@@ -211,8 +234,8 @@ async def process():
         logger.info(f"ChatAgent result: {result}")
         return jsonify({'result': result})
     except Exception as e:
-        logger.error(f"Error processing request: {e}")
-        return jsonify({'error': f"Server error: {str(e)}"}), 500
+        logger.error(f"Error processing request: {str(e)}")
+        return jsonify({"error": "Server error: " + str(e)}), 500
 
 @app.route('/')
 def home():

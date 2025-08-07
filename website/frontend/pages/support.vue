@@ -1,146 +1,140 @@
-
 <template>
-  <div class="support-page">
-    <h1>Support Chat</h1>
-    <p>Welcome to ixome.ai Support! Let’s get your tech sorted with a friendly chat!</p>
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-    <div v-if="loading" class="loading">Connecting to our team...</div>
-    <div v-if="messages.length" class="chat-messages">
-      <div v-for="message in messages" :key="message.id" :class="['message', message.sender === currentUserId ? 'sent' : 'received']">
-        <div class="message-content">
-          <strong>{{ message.sender }}</strong>
-          <p>{{ message.text }}</p>
-          <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
+  <div class="support-page ptb-80">
+    <div class="container mx-auto px-4">
+      <h1 class="text-2xl font-bold mb-4 text-gray-800">Support Chat</h1>
+      <p class="mb-6 text-gray-600">Welcome to IXome.ai Support! Let’s get your tech sorted with a friendly chat!</p>
+      <div v-if="errorMessage" class="error-message bg-red-100 text-red-500 p-2 rounded-md mb-4">{{ errorMessage }}</div>
+      <div v-if="loading" class="loading text-blue-500 mb-4">Connecting to our team...</div>
+      <div v-if="isClient && messages && messages.length" class="chat-messages border border-gray-300 p-4 rounded-md bg-white max-h-[400px] overflow-y-auto mb-4">
+        <div v-for="message in messages" :key="message.id" :class="['message', message.sender === currentUserId ? 'sent' : 'received']">
+          <div class="message-content p-2 rounded-lg max-w-[70%]">
+            <strong class="text-sm">{{ message.sender }}</strong>
+            <p class="text-gray-600">{{ message.text }}</p>
+            <span class="timestamp text-xs text-gray-400">{{ formatTimestamp(message.timestamp) }}</span>
+          </div>
         </div>
       </div>
-    </div>
-    <div v-else class="no-messages">Hey there! Start chatting with us to get help!</div>
-    <div class="chat-input">
-      <input v-model="newMessage" placeholder="Type your message here..." @keyup.enter="sendMessage" :disabled="loading" />
-      <button @click="sendMessage" :disabled="loading">Send</button>
+      <div v-else-if="isClient" class="no-messages bg-gray-100 p-2 rounded-md mb-4 text-gray-600">Hey there! Start chatting with us to get help!</div>
+      <div v-else class="no-messages bg-gray-100 p-2 rounded-md mb-4 text-gray-600">Loading chat...</div>
+      <div class="chat-input flex gap-2">
+        <input v-model="newMessage" placeholder="Type your message here..." @keyup.enter="sendMessage" :disabled="loading" class="flex-grow p-2 border border-gray-300 rounded-md text-base disabled:bg-gray-100 disabled:cursor-not-allowed" />
+        <button @click="sendMessage" :disabled="loading" class="btn btn-primary px-4 py-2 text-white rounded-md">Send</button>
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from "vue";
-import io from "socket.io-client";
+<script setup>
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { io } from 'socket.io-client';
 
-export default defineComponent({
-  name: "Support",
-  setup() {
-    const socket = ref(null);
-    const currentUserId = ref(localStorage.getItem('user_id') || "guest");
-    const messages = ref([]);
-    const newMessage = ref("");
-    const errorMessage = ref("");
-    const loading = ref(true);
-    const firstVisit = ref(!localStorage.getItem('first_visit_done'));
+const currentUserId = ref('guest');
+const messages = ref([]);
+const newMessage = ref('');
+const errorMessage = ref('');
+const loading = ref(true);
+const socket = ref(null);
+const isClient = computed(() => typeof window !== 'undefined');
 
-    onMounted(() => {
-      try {
-        const token = localStorage.getItem('jwt_token');
-        if (!token) {
-          errorMessage.value = "Oops! Please log in to start chatting.";
-          loading.value = false;
-          return;
-        }
+onMounted(() => {
+  if (!isClient.value) return;
+  console.log('support.vue mounted - Attempting SocketIO connection');
+  try {
+    currentUserId.value = localStorage.getItem('user_id') || 'guest';
+    const token = localStorage.getItem('token');
+    if (!token) {
+      errorMessage.value = 'Please log in at /login to start chatting.';
+      loading.value = false;
+      console.log('No token found, prompting login');
+      return;
+    }
 
-        socket.value = io("http://localhost:5001", {
-          query: { token, user_id: currentUserId.value }
-        });
-
-        socket.value.on("connect", () => {
-          console.log("Connected to Socket.IO server");
-          loading.value = false;
-          messages.value.push({
-            id: Date.now(),
-            sender: "System",
-            text: "Hey there! I’m your ixome.ai chatbot—ready to help with a smile! 😄",
-            timestamp: new Date().getTime(),
-          });
-          if (firstVisit.value) {
-            localStorage.setItem('first_visit_done', 'true');
-          }
-        });
-
-        socket.value.on("response", (data) => {
-          messages.value.push({
-            id: Date.now(),
-            sender: "Bot",
-            text: data.text,
-            timestamp: new Date().getTime(),
-          });
-          if (data.redirect) {
-            window.location.href = data.redirect;
-          }
-        });
-
-        socket.value.on("connect_error", (error) => {
-          errorMessage.value = `Whoops! Connection issue: ${error.message}`;
-          console.error("Socket.IO connection error:", error);
-          loading.value = false;
-        });
-      } catch (error) {
-        errorMessage.value = `Yikes! Chat setup failed: ${error.message}`;
-        console.error("Chat initialization error:", error);
-        loading.value = false;
-      }
+    socket.value = io('http://127.0.0.1:5001', {
+      auth: { token, user_id: currentUserId.value },
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
     });
 
-    onUnmounted(() => {
-      if (socket.value) {
-        socket.value.disconnect();
-      }
+    socket.value.on('connect', () => {
+      console.log('Connected to Socket.IO server');
+      loading.value = false;
+      messages.value.push({
+        id: Date.now(),
+        sender: 'System',
+        text: 'Hey there! I’m your IXome.ai chatbot—ready to help with a smile! 😄',
+        timestamp: new Date().getTime(),
+      });
     });
 
-    const sendMessage = () => {
-      if (!newMessage.value.trim() || !socket.value) return;
-      try {
-        socket.value.emit("message", {
-          user_id: currentUserId.value,
-          text: newMessage.value,
-        });
-        messages.value.push({
-          id: Date.now(),
-          sender: currentUserId.value,
-          text: newMessage.value,
-          timestamp: new Date().getTime(),
-        });
-        newMessage.value = "";
-      } catch (error) {
-        errorMessage.value = `Oops! Couldn’t send your message: ${error.message}`;
-        console.error("Message sending error:", error);
-      }
-    };
+    socket.value.on('response', (data) => {
+      console.log('Received SocketIO response:', data);
+      messages.value.push({
+        id: Date.now(),
+        sender: 'Bot',
+        text: data.text,
+        timestamp: new Date().getTime(),
+      });
+    });
 
-    const formatTimestamp = (timestamp) => {
-      const date = new Date(timestamp);
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    };
+    socket.value.on('connect_error', (error) => {
+      errorMessage.value = `Connection issue: ${error.message}. Please try logging in again.`;
+      console.error('Socket.IO connection error:', error);
+      loading.value = false;
+    });
+  } catch (error) {
+    errorMessage.value = `Chat setup failed: ${error.message}`;
+    console.error('Chat initialization error:', error);
+    loading.value = false;
+  }
+});
 
-    return {
-      currentUserId,
-      messages,
-      newMessage,
-      errorMessage,
-      loading,
-      sendMessage,
-      formatTimestamp,
-    };
-  },
+onUnmounted(() => {
+  if (socket.value) {
+    console.log('Disconnecting SocketIO');
+    socket.value.disconnect();
+  }
+});
+
+const sendMessage = () => {
+  if (!isClient.value || !newMessage.value.trim() || !socket.value) return;
+  try {
+    console.log('Sending message:', newMessage.value);
+    socket.value.emit('message', {
+      user_id: currentUserId.value,
+      text: newMessage.value,
+    });
+    messages.value.push({
+      id: Date.now(),
+      sender: currentUserId.value,
+      text: newMessage.value,
+      timestamp: new Date().getTime(),
+    });
+    newMessage.value = '';
+  } catch (error) {
+    errorMessage.value = `Couldn’t send message: ${error.message}`;
+    console.error('Message sending error:', error);
+  }
+};
+
+const formatTimestamp = (timestamp) => {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+useHead({
+  title: 'IXome.ai - Support Chat',
+  meta: [
+    { name: 'description', content: 'Get real-time support for your smart home systems with IXome.ai’s AI chatbot.' },
+    { name: 'keywords', content: 'smart home support, Control4, Lutron, AI chatbot' }
+  ]
 });
 </script>
 
 <style scoped>
 .support-page {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-  margin-top: 60px;
-  z-index: 10;
-  font-family: Arial, sans-serif;
-  background-color: #f7fafd;
+  position: relative;
+  z-index: 1;
 }
 
 .support-page h1 {
@@ -262,7 +256,6 @@ export default defineComponent({
 @media (max-width: 768px) {
   .support-page {
     padding: 10px;
-    margin-top: 50px;
   }
 
   .support-page h1 {

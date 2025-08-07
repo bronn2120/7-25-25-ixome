@@ -10,9 +10,6 @@
       "nitropack": [
         "../node_modules/nitropack"
       ],
-      "defu": [
-        "../node_modules/defu"
-      ],
       "h3": [
         "../node_modules/h3"
       ],
@@ -26,13 +23,22 @@
         "../node_modules/@unhead/vue"
       ],
       "@nuxt/devtools": [
-        "../node_modules/@nuxt/devtools"
+        "../node_modules/nuxt/node_modules/@nuxt/devtools"
+      ],
+      "vue": [
+        "../node_modules/vue"
       ],
       "@vue/runtime-core": [
         "../node_modules/@vue/runtime-core"
       ],
       "@vue/compiler-sfc": [
         "../node_modules/@vue/compiler-sfc"
+      ],
+      "vue-router": [
+        "../node_modules/vue-router"
+      ],
+      "vue-router/auto-routes": [
+        "../node_modules/vue-router/vue-router-auto-routes"
       ],
       "unplugin-vue-router/client": [
         "../node_modules/unplugin-vue-router/client"
@@ -42,9 +48,6 @@
       ],
       "nuxt": [
         "../node_modules/nuxt"
-      ],
-      "vite/client": [
-        "../node_modules/vite/client"
       ],
       "~": [
         ".."
@@ -73,6 +76,9 @@
       "#shared": [
         "../shared"
       ],
+      "#shared/*": [
+        "../shared/*"
+      ],
       "assets": [
         "../assets"
       ],
@@ -93,6 +99,9 @@
       ],
       "vue-demi": [
         "../node_modules/nuxt/dist/app/compat/vue-demi"
+      ],
+      "#color-mode-options": [
+        "./color-mode-options.mjs"
       ],
       "#vue-router": [
         "../node_modules/vue-router"
@@ -148,29 +157,26 @@
     "../**/*",
     "../.config/nuxt.*",
     "./nuxt.d.ts",
-    "../node_modules/@nuxtjs/strapi/runtime",
-    "../node_modules/@nuxtjs/strapi/dist/runtime",
-    "../node_modules/@nuxt/devtools/runtime",
-    "../node_modules/@nuxt/devtools/dist/runtime",
-    "../node_modules/@nuxt/telemetry/runtime",
-    "../node_modules/@nuxt/telemetry/dist/runtime",
+    "../node_modules/runtime",
+    "../node_modules/dist/runtime",
+    "../node_modules/nuxt/node_modules/runtime",
+    "../node_modules/nuxt/node_modules/dist/runtime",
     ".."
   ],
   "exclude": [
     "../dist",
     "../.data",
     "../node_modules",
-    "../../../node_modules",
     "../node_modules/nuxt/node_modules",
     "../node_modules/@nuxtjs/strapi/node_modules",
-    "../node_modules/@nuxt/devtools/node_modules",
+    "../node_modules/@nuxtjs/tailwindcss/node_modules",
+    "../node_modules/@nuxtjs/color-mode/node_modules",
+    "../node_modules/nuxt/node_modules/@nuxt/devtools/node_modules",
     "../node_modules/@nuxt/telemetry/node_modules",
-    "../node_modules/@nuxtjs/strapi/runtime/server",
-    "../node_modules/@nuxtjs/strapi/dist/runtime/server",
-    "../node_modules/@nuxt/devtools/runtime/server",
-    "../node_modules/@nuxt/devtools/dist/runtime/server",
-    "../node_modules/@nuxt/telemetry/runtime/server",
-    "../node_modules/@nuxt/telemetry/dist/runtime/server",
-    "../.output"
+    "../node_modules/runtime/server",
+    "../node_modules/dist/runtime/server",
+    "../node_modules/nuxt/node_modules/runtime/server",
+    "../node_modules/nuxt/node_modules/dist/runtime/server",
+    "dev"
   ]
 }

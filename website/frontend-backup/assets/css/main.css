@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+@File: Pasona Template Styles
+
+* This file contains the styling for the actual template, this
+is the file you need to edit to change the look of the
+template.
+
+This files table contents are outlined below>>>>>
+
+*******************************************
+*******************************************
+
+==== INDEX PAGE CSS
+
+** - Default CSS
+** - Homepage Banner Shape CSS
+** - Preloader CSS
+** - Navbar CSS
+** - About CSS
+** - Boxes CSS
+** - Services CSS
+** - Services Details CSS
+** - Team CSS
+** - Fun Facts CSS
+** - Pricing CSS
+** - Ready To Talk CSS
+** - Partner CSS
+** - Page Title CSS
+** - FAQ CSS
+** - Pagination CSS
+** - Sidebar Widget CSS
+** - Contact CSS
+** - Coming Soon CSS
+** - 404 Error CSS
+** - Our Solutions CSS
+** - Free Trial CSS
+** - Our Solutions CSS
+** - Footer CSS
+** - Go Top CSS
+*/

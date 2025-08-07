@@ -1,46 +1,46 @@
 <template>
   <div class="pricing-area ptb-80">
-    <div class="container">
-      <div class="section-title">
-        <h2>Pricing Plans</h2>
+    <div class="container mx-auto px-4">
+      <div class="section-title text-center mb-12">
+        <h2 class="text-4xl font-bold mb-5">Pricing Plans</h2>
         <div class="bar"></div>
-        <p>Choose the perfect IXome.ai subscription for your smart home needs.</p>
+        <p class="max-w-xl mx-auto text-gray-600">Choose the perfect IXome.ai subscription for your smart home needs.</p>
       </div>
-
       <div class="row">
         <div class="col-lg-4 col-md-6">
-          <div class="single-pricing-box">
-            <h3>Basic Plan</h3>
-            <div class="pricing-price">
-              <span class="price">$10</span>
-              <span class="validity">/ 100 tokens</span>
+          <div class="single-pricing-box text-center p-6 bg-white rounded-md shadow-lg transition-transform duration-600">
+            <h3 class="text-xl font-bold mb-4">Basic Plan</h3>
+            <div class="pricing-price mb-4">
+              <span class="price text-4xl font-bold text-purple-500">$10</span>
+              <span class="validity text-base text-gray-500">/ 100 tokens</span>
             </div>
-            <p>Ideal for occasional troubleshooting of Control4 and Lutron systems.</p>
-            <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink>
+            <p class="mb-5 text-gray-600">Ideal for occasional troubleshooting of Control4 and Lutron systems.</p>
+            <!-- <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink> -->
+            <!-- Signup page not yet implemented; uncomment when /signup is created -->
           </div>
         </div>
-
         <div class="col-lg-4 col-md-6">
-          <div class="single-pricing-box">
-            <h3>Pro Plan</h3>
-            <div class="pricing-price">
-              <span class="price">$50</span>
-              <span class="validity">/ 1000 tokens</span>
+          <div class="single-pricing-box text-center p-6 bg-white rounded-md shadow-lg transition-transform duration-600">
+            <h3 class="text-xl font-bold mb-4">Pro Plan</h3>
+            <div class="pricing-price mb-4">
+              <span class="price text-4xl font-bold text-purple-500">$50</span>
+              <span class="validity text-base text-gray-500">/ 1000 tokens</span>
             </div>
-            <p>Perfect for frequent users needing advanced smart home support.</p>
-            <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink>
+            <p class="mb-5 text-gray-600">Perfect for frequent users needing advanced smart home support.</p>
+            <!-- <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink> -->
+            <!-- Signup page not yet implemented; uncomment when /signup is created -->
           </div>
         </div>
-
         <div class="col-lg-4 col-md-6 offset-lg-0 offset-md-3">
-          <div class="single-pricing-box">
-            <h3>Enterprise Plan</h3>
-            <div class="pricing-price">
-              <span class="price">$200</span>
-              <span class="validity">/ 10000 tokens</span>
+          <div class="single-pricing-box text-center p-6 bg-white rounded-md shadow-lg transition-transform duration-600">
+            <h3 class="text-xl font-bold mb-4">Enterprise Plan</h3>
+            <div class="pricing-price mb-4">
+              <span class="price text-4xl font-bold text-purple-500">$200</span>
+              <span class="validity text-base text-gray-500">/ 10000 tokens</span>
             </div>
-            <p>Designed for installers and large-scale smart home projects.</p>
-            <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink>
+            <p class="mb-5 text-gray-600">Designed for installers and large-scale smart home projects.</p>
+            <!-- <NuxtLink to="/signup" class="btn btn-primary">Subscribe Now</NuxtLink> -->
+            <!-- Signup page not yet implemented; uncomment when /signup is created -->
           </div>
         </div>
       </div>
@@ -48,19 +48,16 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Pricing',
-  head() {
-    return {
-      title: 'IXome.ai - Pricing',
-      meta: [
-        { name: 'description', content: 'Explore IXome.ai’s pricing plans for AI-powered smart home support.' },
-        { name: 'keywords', content: 'smart home pricing, Control4, Lutron, AI subscription' }
-      ]
-    }
-  }
-}
+<script setup>
+import { NuxtLink } from '#components';
+
+useHead({
+  title: 'IXome.ai - Pricing',
+  meta: [
+    { name: 'description', content: 'Explore IXome.ai’s pricing plans for AI-powered smart home support.' },
+    { name: 'keywords', content: 'smart home pricing, Control4, Lutron, AI subscription' }
+  ]
+});
 </script>
 
 <style scoped>
@@ -149,6 +146,7 @@ export default {
   padding: 10px 20px;
   border-radius: 5px;
   font-weight: 500;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .single-pricing-box .btn-primary:hover {

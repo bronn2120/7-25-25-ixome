@@ -1,13 +1,13 @@
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAI
-from langchain.chains import LLMChain  # Add correct import
+from langchain_core.runnables import RunnableSequence
 from dotenv import load_dotenv
 import os
 import tweepy
 import logging
 
 logger = logging.getLogger(__name__)
-load_dotenv(dotenv_path='/home/vincent/ixome/.env')  # Use consistent .env
+load_dotenv(dotenv_path='/home/vincent/ixome/.env')
 
 class SocialAgent:
     def __init__(self):
@@ -19,7 +19,7 @@ class SocialAgent:
             input_variables=["topic"],
             template="Generate a concise, engaging X post (280 characters or less) for IXome.ai on the topic '{topic}' with SEO keywords 'smart home chatbot', 'Control4 troubleshooting', 'Lutron support'."
         )
-        self.chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
+        self.chain = self.prompt_template | self.llm
         # Initialize X API
         consumer_key = os.environ.get("X_CONSUMER_KEY")
         consumer_secret = os.environ.get("X_CONSUMER_SECRET")
@@ -39,7 +39,7 @@ class SocialAgent:
     def promote(self, topic="smart home automation"):
         """Generate and post to X."""
         try:
-            post_content = self.chain.run(topic=topic)
+            post_content = self.chain.invoke({"topic": topic}).strip()
             if self.client:
                 self.client.create_tweet(text=post_content)
                 logger.info(f"Posted to X: {post_content}")
