@@ -37,19 +37,20 @@
 <script setup>
 import { NuxtLink } from '#components';
 import { onMounted } from 'vue';
-import * as bootstrap from 'bootstrap';
 
 onMounted(() => {
   console.log('HeaderFive.vue mounted');
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && window.bootstrap) {
     const navbarToggler = document.querySelector('.navbar-toggler');
     const navbarCollapse = document.querySelector('#navbarNav');
     if (navbarToggler && navbarCollapse) {
       console.log('Navbar elements found, initializing Bootstrap collapse');
-      new bootstrap.Collapse(navbarCollapse, { toggle: false });
+      new window.bootstrap.Collapse(navbarCollapse, { toggle: false });
     } else {
       console.error('Navbar toggler or collapse not found');
     }
+  } else {
+    console.error('Bootstrap not found on window object');
   }
 });
 </script>
@@ -65,12 +66,20 @@ onMounted(() => {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+.navbar-nav {
+  display: flex;
+  flex-direction: row;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 .navbar-nav .nav-link {
   font-weight: 500;
   font-size: 1rem;
   color: #ffffff !important;
   transition: color 0.3s ease;
   padding: 0.5rem 1rem;
+  display: block;
 }
 
 .navbar-nav .nav-link:hover,
@@ -92,6 +101,7 @@ onMounted(() => {
 
 @media (max-width: 991px) {
   .navbar-nav {
+    flex-direction: column;
     padding-top: 0.5rem;
     background-color: #343a40;
   }

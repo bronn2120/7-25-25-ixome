@@ -4,14 +4,12 @@
       <div v-if="footerData" class="row">
         <div class="col-lg-4 col-md-6">
           <h3>{{ footerData.title }}</h3>
-          <p v-for="paragraph in footerData.footer" :key="paragraph.id">
-            {{ paragraph.children[0].text }}
-          </p>
+          <p v-if="parsedDescription">{{ parsedDescription }}</p>
         </div>
         <div class="col-lg-4 col-md-6">
           <h3>{{ footerData.titleTwo }}</h3>
           <ul class="list-none">
-            <li v-for="item in footerData.supportLists" :key="item.title">
+            <li v-for="item in footerData.supportLists || []" :key="item.title">
               <a :href="item.link" class="text-blue-500 hover:text-green-500">{{ item.title }}</a>
             </li>
           </ul>
@@ -22,13 +20,16 @@
           <p>{{ footerData.email }}</p>
           <p>{{ footerData.phone }}</p>
           <ul class="list-none flex gap-4">
-            <li v-for="social in footerData.socialLink" :key="social.link">
+            <li v-for="social in footerData.socialLink || []" :key="social.link">
               <a :href="social.link" target="_blank" :aria-label="social.icon">
                 <i :class="social.icon"></i>
               </a>
             </li>
           </ul>
         </div>
+      </div>
+      <div v-else-if="error" class="text-center text-red-600">
+        <p>Failed to load footer data: {{ error.message }}</p>
       </div>
       <div v-else class="text-center text-gray-600">
         <p>Loading footer data...</p>
@@ -38,26 +39,41 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useFetch } from '#app';
+import { ref, computed } from 'vue';
 
 const footerData = ref(null);
+const error = ref(null);
 
-const { data, error } = await useFetch('/strapi-api/footers?populate=*', {
-  baseURL: 'http://127.0.0.1:1337',
-  headers: {
-    Authorization: `Bearer 0cd0e40004e6754b99c87190736e1c94094ae5383fab2896f0cceb79f63df1ce3d788d04f45057fd06830bb22a8d91e9af9d6d79ae28694a94df84dcc4c93b490b3a6c72b795195702e380ec0ca9280ba9ca958cf5ef190d548eba87982c9459453c00d92948c94122606f9f4cee9964bef15f2d406e2e7de45bfac23fc4aa22`
+const { data } = await useAsyncData('footer', async () => {
+  try {
+    const response = await $fetch('/api/footers?populate=*', {
+      baseURL: 'http://127.0.0.1:1337'
+    });
+    console.log('Raw footer response:', response);
+    return response.data && response.data.length > 0 ? response.data[0] : null;
+  } catch (err) {
+    console.error('Footer fetch error:', err);
+    error.value = err;
+    return null;
   }
 });
 
-if (error.value) {
-  console.error('Error fetching footer data:', error.value);
-} else if (data.value && data.value.data && data.value.data.length > 0) {
-  footerData.value = data.value.data[0];
+if (data.value) {
+  footerData.value = data.value; // Store the entire data object
   console.log('Footer data loaded:', footerData.value);
-} else {
+} else if (!error.value) {
   console.error('No footer data found');
 }
+
+// Extract the description text from the footer field
+const parsedDescription = computed(() => {
+  if (!footerData.value || !footerData.value.attributes || !footerData.value.attributes.footer) return '';
+  // Find the paragraph containing the actual description text
+  const descriptionParagraph = footerData.value.attributes.footer.find(paragraph =>
+    paragraph.children[0]?.text.includes('Quis ipsum suspendisse')
+  );
+  return descriptionParagraph ? descriptionParagraph.children[0].text : '';
+});
 </script>
 
 <style scoped>
