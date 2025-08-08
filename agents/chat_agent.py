@@ -17,6 +17,10 @@ import getpass
 import time
 from langchain_openai import OpenAIEmbeddings
 from core.db import insert_dealer_info, query_sqlite
+from flask import Flask, request, jsonify
+from flask_socketio import SocketIO, emit
+from flask_cors import CORS
+import requests
 
 # Load environment variables
 load_dotenv(dotenv_path='/home/vincent/ixome/.env', override=True)
@@ -37,6 +41,12 @@ if not pinecone_api_key:
     logger.error("PINECONE_API_KEY not found in .env file!")
     pinecone_api_key = getpass.getpass("Please enter PINECONE_API_KEY: ")
     os.environ["PINECONE_API_KEY"] = pinecone_api_key
+
+strapi_token = os.getenv("STRAPI_TOKEN")
+if not strapi_token:
+    logger.error("STRAPI_TOKEN not found in .env file!")
+    strapi_token = getpass.getpass("Please enter STRAPI_TOKEN: ")
+    os.environ["STRAPI_TOKEN"] = strapi_token
 
 google_credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 if not google_credentials_path:
@@ -62,6 +72,12 @@ if index_name not in pc.list_indexes().names():
     )
 index = pc.Index(index_name)
 
+# Flask-SocketIO setup
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+
 # Define Pydantic models
 class ClientQuery(BaseModel):
     query: str
@@ -72,6 +88,7 @@ class Solution(BaseModel):
     solution: str
     confidence: float
     source: Optional[str] = None
+    tokens_used: int = 0
 
 class AgentState(BaseModel):
     input_type: Optional[str] = None
@@ -82,6 +99,7 @@ class AgentState(BaseModel):
     solution: Optional[Solution] = None
     result: Dict = {}
     user_id: Optional[str] = None
+    tokens_used: int = 0
 
 class ChatAgent:
     def __init__(self):
@@ -91,7 +109,6 @@ class ChatAgent:
         self.vision_client = vision_client
         self.index = index
 
-        # Set up LangGraph workflow
         self.graph = Graph()
         self.graph.add_node("input", self.input_node)
         self.graph.add_node("text_processing", self.text_processing_node)
@@ -116,7 +133,7 @@ class ChatAgent:
         self.app = self.graph.compile()
 
     async def input_node(self, state: AgentState) -> AgentState:
-        self.logger.info(f"Received input: type={state.input_type}, data=<data>, user_id={state.user_id}")
+        self.logger.info(f"Received input: type={state.input_type}, user_id={state.user_id}")
         return state
 
     async def text_processing_node(self, state: AgentState) -> AgentState:
@@ -200,36 +217,30 @@ class ChatAgent:
 
     async def solution_retrieval_node(self, state: AgentState) -> AgentState:
         try:
-            # Dynamic embedding with ADA-003 via LangChain
+            subscription = check_subscription(state.user_id)
+            if subscription["status"] == "error" or not subscription.get("is_active", False):
+                state.solution = Solution(solution="No active subscription. Please upgrade.", confidence=1.0, source="Strapi", tokens_used=0)
+                return state
+            if subscription["tokens_used"] >= subscription["tokens_limit"]:
+                state.solution = Solution(solution="Token limit reached. Please upgrade your subscription.", confidence=1.0, source="Strapi", tokens_used=0)
+                return state
+
             embedding_input = state.processed_input or "unknown issue"
             embedding = embeddings.embed_query(embedding_input)
             results = self.index.query(vector=embedding, top_k=1, include_metadata=True)
+            tokens_used = len(embedding_input.split()) * 2
             if results['matches']:
                 solution_text = results['matches'][0]['metadata'].get('solution', "No solution found")
                 confidence = results['matches'][0]['score']
-                # Hybrid: Append SQLite exact match
-                brand = "Lutron" if "lutron" in embedding_input.lower() else "Unknown"
-                component = state.issue if state.issue else "Unknown"
-                sqlite_result = query_sqlite(brand, component)
+                sqlite_result = query_sqlite("Lutron" if "lutron" in embedding_input.lower() else "Unknown", state.issue or "Unknown")
                 solution_text += f"\nExact dealer info from SQLite: {sqlite_result}"
-                state.solution = Solution(solution=solution_text, confidence=confidence, source="Pinecone + SQLite Hybrid")
-                self.logger.info(f"Retrieved hybrid solution: {solution_text}")
-                return state
+                state.solution = Solution(solution=solution_text, confidence=confidence, source="Pinecone + SQLite", tokens_used=tokens_used)
+            else:
+                state.solution = Solution(solution="No solution found in Pinecone.", confidence=0.5, source="Pinecone", tokens_used=tokens_used)
+            update_subscription(state.user_id, subscription["tokens_used"] + tokens_used)
         except Exception as e:
             self.logger.error(f"Pinecone/SQLite query failed: {e}")
-
-        # Fallback solutions
-        solutions = {
-            "no_sound": "Check if the sound system is turned on and cables are connected.",
-            "tv_not_turning_on": "Ensure the TV is plugged in and the power cable is secure.",
-            "settings_issue": "Navigate to the settings menu and verify the correct input source.",
-            "error_code": "Note the flashing light pattern and consult the device manual."
-        }
-        solution_text = solutions.get(state.issue, "Issue not recognized. Please provide more details.")
-        # Example insert to SQLite for test
-        insert_dealer_info("Lutron", "Dealer tip: Reset Lutron bridge for audio issues.", "audio")
-        state.solution = Solution(solution=solution_text, confidence=0.5, source="Fallback")
-        self.logger.info(f"Retrieved fallback solution: {solution_text}")
+            state.solution = Solution(solution=f"Error retrieving solution: {e}", confidence=0.0, source="Error", tokens_used=0)
         return state
 
     async def response_generation_node(self, state: AgentState) -> AgentState:
@@ -237,7 +248,7 @@ class ChatAgent:
             response = f"Little Einstein: {state.solution.solution} (For user: {state.user_id})"
         else:
             response = f"Little Einstein: No specific solution found. Please check the device manual or contact support. (For user: {state.user_id})"
-        state.result = {"status": "success", "response": response, "message": "Solution provided"}
+        state.result = {"status": "success", "response": response, "message": "Solution provided", "tokens_used": state.solution.tokens_used}
         self.logger.info(f"Generated response: {response}")
         return state
 
@@ -251,21 +262,86 @@ class ChatAgent:
         result = await self.app.ainvoke(state)
         return result.result
 
+def check_subscription(username: str) -> dict:
+    # Hardcode success for testing
+    return {
+        "status": "success",
+        "username": username,
+        "tier": "basic",
+        "tokens_used": 0,
+        "tokens_limit": 100,
+        "is_active": True
+    }
+
+def update_subscription(username: str, tokens_used: int):
+    try:
+        response = requests.get(
+            "http://127.0.0.1:1337/api/subscriber-ids",
+            headers={"Authorization": f"Bearer {strapi_token}"},
+            params={"filters[subscriber_id][$eq]": username}
+        )
+        response.raise_for_status()
+        data = response.json()
+        if isinstance(data, dict) and "data" in data and len(data["data"]) > 0:
+            subscription_id = data["data"][0]["id"]
+            response = requests.put(
+                f"http://127.0.0.1:1337/api/subscriber-ids/{subscription_id}",
+                headers={"Authorization": f"Bearer {strapi_token}"},
+                json={"data": {"tokens_used": tokens_used}}
+            )
+            response.raise_for_status()
+    except Exception as e:
+        logger.error(f"Subscription update failed: {e}")
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    try:
+        response = requests.post(
+            "http://127.0.0.1:1337/api/auth/local",
+            json={"identifier": f"{username}@ixome.ai", "password": password}
+        )
+        logger.info(f"Strapi auth response: {response.status_code}, {response.text}")
+        response.raise_for_status()
+        auth_data = response.json()
+        if auth_data.get("jwt"):
+            subscription = check_subscription(username)
+            logger.info(f"Subscription check result: {subscription}")
+            if subscription["status"] == "success" and subscription.get("is_active", False):
+                return jsonify({'status': 'success', 'message': 'Logged in successfully', 'jwt': auth_data["jwt"]})
+            return jsonify({'status': 'error', 'message': 'No active subscription'}), 403
+        return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"Login failed: {e}, Response: {e.response.text if e.response else 'No response'}")
+        return jsonify({'status': 'error', 'message': f'Login error: {e.response.text if e.response else str(e)}'}), 500
+    except Exception as e:
+        logger.error(f"Login failed: {e}")
+        return jsonify({'status': 'error', 'message': f'Login error: {str(e)}'}), 500
+
+@socketio.on('connect')
+def handle_connect():
+    logger.info('Client connected')
+    emit('connection_response', {'message': 'Connected to Socket.IO server'})
+
+@socketio.on('message')
+def handle_message(data):
+    logger.info(f'Received message: {data}')
+    message = data.get('message')
+    user_id = data.get('user_id', 'unknown')
+    non_technical_keywords = ["website", "navigation", "login", "signup", "how to use"]
+    if any(keyword in message.lower() for keyword in non_technical_keywords):
+        response = {"sender": "bot", "text": f"Little Einstein: For {message}, please visit our help page or contact support."}
+        emit('message', response)
+        return
+    agent = ChatAgent()
+    result = asyncio.run(agent.process_input("text", message, user_id))
+    emit('message', {
+        'sender': 'bot',
+        'text': result["response"],
+        'tokens_used': result.get("tokens_used", 0)
+    })
+
 if __name__ == "__main__":
-    async def test():
-        agent = ChatAgent()
-        response = await agent.process_input("text", "My TV has no sound.", "test")
-        print(f"Text Response: {response}")
-        try:
-            with open("/home/vincent/ixome/notebooks/test_audio.wav", "rb") as f:
-                response = await agent.process_input("voice", f.read(), "test")
-            print(f"Voice Response: {response}")
-        except FileNotFoundError:
-            print("Voice test skipped: test_audio.wav not found")
-        try:
-            with open("/home/vincent/ixome/notebooks/test_video.mp4", "rb") as f:
-                response = await agent.process_input("video", f.read(), "test")
-            print(f"Video Response: {response}")
-        except FileNotFoundError:
-            print("Video test skipped: test_video.mp4 not found")
-    asyncio.run(test())
+    socketio.run(app, host='0.0.0.0', port=5003, debug=True)

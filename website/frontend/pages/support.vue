@@ -49,7 +49,7 @@ onMounted(() => {
       return;
     }
 
-    socket.value = io('http://127.0.0.1:5001', {
+    socket.value = io('http://127.0.0.1:5003', {
       auth: { token, user_id: currentUserId.value },
       reconnection: true,
       reconnectionAttempts: 5,
@@ -67,12 +67,12 @@ onMounted(() => {
       });
     });
 
-    socket.value.on('response', (data) => {
-      console.log('Received SocketIO response:', data);
+    socket.value.on('message', (data) => {
+      console.log('Received SocketIO message:', data);
       messages.value.push({
         id: Date.now(),
-        sender: 'Bot',
-        text: data.text,
+        sender: data.sender || 'Bot',
+        text: data.text || 'No response text',
         timestamp: new Date().getTime(),
       });
     });
@@ -102,7 +102,7 @@ const sendMessage = () => {
     console.log('Sending message:', newMessage.value);
     socket.value.emit('message', {
       user_id: currentUserId.value,
-      text: newMessage.value,
+      message: newMessage.value,
     });
     messages.value.push({
       id: Date.now(),
@@ -136,19 +136,16 @@ useHead({
   position: relative;
   z-index: 1;
 }
-
 .support-page h1 {
   font-size: 2rem;
   margin-bottom: 1rem;
   color: #333;
 }
-
 .support-page p {
   font-size: 1.1rem;
   margin-bottom: 1.5rem;
   color: #666;
 }
-
 .error-message {
   color: #d9534f;
   margin-bottom: 1rem;
@@ -156,13 +153,11 @@ useHead({
   background-color: #fff3f3;
   border-radius: 4px;
 }
-
 .loading {
   font-size: 1.2rem;
   color: #007bff;
   margin-bottom: 1rem;
 }
-
 .chat-messages {
   max-height: 400px;
   overflow-y: auto;
@@ -172,7 +167,6 @@ useHead({
   background-color: white;
   border-radius: 4px;
 }
-
 .no-messages {
   font-size: 1rem;
   color: #666;
@@ -181,46 +175,38 @@ useHead({
   background-color: #f9f9f9;
   border-radius: 4px;
 }
-
 .message {
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
 }
-
 .message.sent {
   justify-content: flex-end;
 }
-
 .message.received {
   justify-content: flex-start;
 }
-
 .message-content {
   background-color: #f1f1f1;
   padding: 8px 12px;
   border-radius: 8px;
   max-width: 70%;
 }
-
 .message.sent .message-content {
   background-color: #007bff;
   color: white;
 }
-
 .timestamp {
   font-size: 0.8rem;
   color: #999;
   margin-top: 4px;
   display: block;
 }
-
 .chat-input {
   display: flex;
   gap: 10px;
   margin-top: 20px;
 }
-
 .chat-input input {
   flex-grow: 1;
   padding: 8px;
@@ -228,12 +214,10 @@ useHead({
   border-radius: 4px;
   font-size: 1rem;
 }
-
 .chat-input input:disabled {
   background-color: #f8f9fa;
   cursor: not-allowed;
 }
-
 .chat-input button {
   padding: 8px 16px;
   background-color: #007bff;
@@ -243,37 +227,29 @@ useHead({
   cursor: pointer;
   font-size: 1rem;
 }
-
 .chat-input button:hover {
   background-color: #0056b3;
 }
-
 .chat-input button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
 }
-
 @media (max-width: 768px) {
   .support-page {
     padding: 10px;
   }
-
   .support-page h1 {
     font-size: 1.5rem;
   }
-
   .support-page p {
     font-size: 1rem;
   }
-
   .chat-messages {
     max-height: 300px;
   }
-
   .chat-input input {
     font-size: 0.9rem;
   }
-
   .chat-input button {
     font-size: 0.9rem;
     padding: 6px 12px;
